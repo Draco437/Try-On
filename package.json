@@ -1,0 +1,25 @@
+{
+  "name": "tryon",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000T\u0000r\u0000y\u0000-\u0000O\u0000n\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "backend": "cd backend && venv\\Scripts\\activate && python manage.py runserver",
+    "frontend": "cd frontend && npm start",
+    "dev": "concurrently --kill-others-on-fail \"npm run backend\" \"npm run frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Draco437/Try-On.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Draco437/Try-On/issues"
+  },
+  "homepage": "https://github.com/Draco437/Try-On#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
