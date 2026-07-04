@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from datetime import timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,7 +37,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'api',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,14 +87,53 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'tryon_db',
-        'CLIENT': {
-            'host': 'mongodb://localhost:27017'
-        }
-
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # ↑ Every API request must have a JWT token in the header
+    # React sends: Authorization: Bearer <token>
+    # Django checks: is this token valid?
+
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    # ↑ By default ALL endpoints need a logged-in user
+    # You can override this per-view with:
+    # permission_classes = [AllowAny]  ← for login/register
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME':  timedelta(hours=1),
+    # ↑ Token expires after 1 hour
+    # User must refresh or login again
+
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    # ↑ Refresh token lasts 7 days
+    # React can use this to get a new access token silently
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    # ↑ Token format in header:
+    # Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+}
+
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+# ↑ Celery uses Redis as a message broker
+# When views.py calls: run_tryon_pipeline.delay(job.id)
+# Celery puts that task in Redis queue
+
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+# ↑ Celery also stores task results in Redis
+# So we can check: is the AI job done yet?
+
+CELERY_ACCEPT_CONTENT  = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+# ↑ Tasks are passed as JSON between Django and Celery worker
 
 
 # Password validation

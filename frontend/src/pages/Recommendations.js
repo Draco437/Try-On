@@ -1,4 +1,4 @@
-export const TryOn = () => {
+export const Recommendations = () => {
     return (
         <div></div>
     )

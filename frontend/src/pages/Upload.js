@@ -1,4 +1,4 @@
-export const TryOn = () => {
+export const Upload = () => {
     return (
         <div></div>
     )
