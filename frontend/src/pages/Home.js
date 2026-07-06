@@ -48,7 +48,7 @@ const features = [
 ];
 
 const stats = [
-  { val: '4',    label: 'Body angles captured' },
+  { val: '3',    label: 'Body views captured' },
   { val: '~15s',  label: 'Processing time'      },
   { val: '360°',  label: 'Result viewer'        },
   { val: '6',    label: 'AI models used'       },

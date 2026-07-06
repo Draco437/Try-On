@@ -49,6 +49,7 @@
 
 .upload-container {
   position: relative;
+  background: radial-gradient(circle at 50% 35%, #0d202e 25%, #060608 70%);
   z-index: 1;
   max-width: 860px;
   margin: 0 auto;

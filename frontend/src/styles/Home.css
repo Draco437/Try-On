@@ -97,7 +97,7 @@
 .home-section {
   padding: 80px 40px;
   max-width: 1000px;
-  background: radial-gradient(circle at 50% 50%, #0d202e 55%, #060608 70%);
+  background: radial-gradient(circle at 50% 20%, #0d202e 25%, #060608 70%);
   margin: 0 auto;
 }
 
