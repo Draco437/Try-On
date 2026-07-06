@@ -57,6 +57,7 @@
 .upload-header {
   text-align: center;
   margin-bottom: 32px;
+  margin-top: 65px;
 }
 
 .upload-step-badge {
@@ -119,10 +120,13 @@
 }
 
 .upload-grid {
-  display: grid;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 @media (max-width: 700px) {

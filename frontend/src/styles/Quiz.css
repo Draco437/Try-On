@@ -1,0 +1,280 @@
+.quiz-page {
+  min-height: 100vh;
+  background: #0a0a0a;
+  padding: 48px 24px;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 20% 30%, rgba(87,186,228,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(87,186,228,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ── Background icons ────────────────────────────────────── */
+.quiz-bg-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.quiz-bg-icons span {
+  position: absolute;
+  opacity: 0.03;
+  font-size: 52px;
+  animation: floatQ 11s ease-in-out infinite;
+  user-select: none;
+}
+
+.quiz-bg-icons span:nth-child(1) { top: 5%;  left: 3%;  animation-delay: 0s;   }
+.quiz-bg-icons span:nth-child(2) { top: 15%; left: 90%; animation-delay: 1.5s; }
+.quiz-bg-icons span:nth-child(3) { top: 50%; left: 5%;  animation-delay: 3s;   }
+.quiz-bg-icons span:nth-child(4) { top: 70%; left: 88%; animation-delay: 0.8s; }
+.quiz-bg-icons span:nth-child(5) { top: 85%; left: 40%; animation-delay: 2s;   }
+.quiz-bg-icons span:nth-child(6) { top: 30%; left: 95%; animation-delay: 4s;   }
+.quiz-bg-icons span:nth-child(7) { top: 90%; left: 15%; animation-delay: 1s;   }
+.quiz-bg-icons span:nth-child(8) { top: 40%; left: 50%; animation-delay: 2.5s; }
+
+@keyframes floatQ {
+  0%, 100% { transform: translateY(0)     rotate(0deg);   }
+  33%       { transform: translateY(-18px) rotate(7deg);   }
+  66%       { transform: translateY(11px)  rotate(-5deg);  }
+}
+
+/* ── Container ───────────────────────────────────────────── */
+.quiz-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.quiz-header {
+  text-align: center;
+  margin-bottom: 24px;
+  margin-top: 65px;
+}
+
+.quiz-step-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(87, 186, 228, 0.1);
+  border: 1px solid rgba(87, 186, 228, 0.25);
+  font-size: 12px;
+  font-weight: 600;
+  color: #57BAE4;
+  margin-bottom: 16px;
+}
+
+.quiz-title {
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.quiz-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.6;
+}
+
+/* ── Progress bar ────────────────────────────────────────── */
+.quiz-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: #57BAE4;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ── Step dots ───────────────────────────────────────────── */
+.quiz-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.quiz-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s;
+}
+
+.quiz-dot.active {
+  background: #57BAE4;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.quiz-dot.done {
+  background: #4ade80;
+}
+
+/* ── Error ───────────────────────────────────────────────── */
+.quiz-error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #f87171;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ── Options grid ────────────────────────────────────────── */
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+/* ── Single option card ──────────────────────────────────── */
+.quiz-option {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.quiz-option:hover {
+  border-color: rgba(87, 186, 228, 0.4);
+  background: rgba(87, 186, 228, 0.05);
+  transform: translateY(-2px);
+}
+
+.quiz-option.selected {
+  border-color: #57BAE4;
+  background: rgba(87, 186, 228, 0.12);
+}
+
+.quiz-option-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.quiz-option-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.quiz-option-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #57BAE4;
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Navigation ──────────────────────────────────────────── */
+.quiz-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.quiz-btn-back {
+  padding: 13px 24px;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.quiz-btn-back:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.quiz-btn-back:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.quiz-btn-next {
+  flex: 1;
+  padding: 13px;
+  border-radius: 12px;
+  background: #57BAE4;
+  color: #000;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.quiz-btn-next:hover:not(:disabled) {
+  background: #3da8d4;
+}
+
+.quiz-btn-next:disabled {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
+
+/* ── Spinner ─────────────────────────────────────────────── */
+.quiz-btn-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

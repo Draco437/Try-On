@@ -40,8 +40,7 @@ def serialize_body_upload(doc):
         'user_id': 1,
         'front_url': 'https://s3...',
         'back_url': 'https://s3...',
-        'left_url': 'https://s3...',
-        'right_url': 'https://s3...',
+        'side_url': 'https://s3...',
         'uploaded_at': datetime(...)
     }
 
@@ -51,8 +50,7 @@ def serialize_body_upload(doc):
         'user_id': 1,
         'front_url': 'https://s3...',
         'back_url': 'https://s3...',
-        'left_url': 'https://s3...',
-        'right_url': 'https://s3...',
+        'side_url': 'https://s3...',
         'uploaded_at': '2025-07-03T10:30:00'
     }
     """
@@ -64,8 +62,7 @@ def serialize_body_upload(doc):
         'user_id':     doc.get('user_id'),
         'front_url':   doc.get('front_url', ''),
         'back_url':    doc.get('back_url', ''),
-        'left_url':    doc.get('left_url', ''),
-        'right_url':   doc.get('right_url', ''),
+        'side_url':    doc.get('side_url', ''),
         'uploaded_at': serialize_datetime(doc.get('uploaded_at')),
     }
 
@@ -177,8 +174,7 @@ def serialize_tryon_job(doc):
         'status': 'done',
         'front_result': 'https://s3...',
         'back_result': 'https://s3...',
-        'left_result': 'https://s3...',
-        'right_result': 'https://s3...',
+        'side_result': 'https://s3...',
         'style_score': 8.4,
         'style_feedback': 'Fits well at shoulders...',
         'created_at': datetime(...)
@@ -195,8 +191,7 @@ def serialize_tryon_job(doc):
         'status':            doc.get('status', 'pending'),
         'front_result':      doc.get('front_result', None),
         'back_result':       doc.get('back_result', None),
-        'left_result':       doc.get('left_result', None),
-        'right_result':      doc.get('right_result', None),
+        'side_result':       doc.get('side_result', None),
         'style_score':       doc.get('style_score', None),
         'style_feedback':    doc.get('style_feedback', None),
         'created_at':        serialize_datetime(doc.get('created_at')),

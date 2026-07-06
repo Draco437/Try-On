@@ -6,10 +6,12 @@
 
 import boto3
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.core.files.storage import FileSystemStorage
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -221,37 +223,11 @@ class LogoutView(APIView):
 # ═══════════════════════════════════════════════════════════════
 
 class BodyUploadView(APIView):
-    """
-    POST /api/body/upload/
-
-    React sends: multipart form data with 4 images
-    {
-        front:  <file>,
-        back:   <file>,
-        left:   <file>,
-        right:  <file>
-    }
-
-    We:
-    1. Upload all 4 images to S3
-    2. Save their URLs to MongoDB
-    3. Return the body_upload document
-
-    React receives:
-    {
-        "id": "64abc...",
-        "front_url": "https://s3...",
-        "back_url": "https://s3...",
-        "left_url": "https://s3...",
-        "right_url": "https://s3...",
-        "uploaded_at": "2025-07-03T10:30:00"
-    }
-    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # ── Check all 4 images are present ──
-        required = ['front', 'back', 'left', 'right']
+        # ── Check all 3 images are present ──
+        required = ['front', 'back', 'side']
         for view in required:
             if view not in request.FILES:
                 return Response(
@@ -260,15 +236,36 @@ class BodyUploadView(APIView):
                 )
 
         try:
-            # ── Upload all 4 to S3 ──
-            front_url = upload_to_s3(request.FILES['front'], 'body')
-            back_url  = upload_to_s3(request.FILES['back'],  'body')
-            left_url  = upload_to_s3(request.FILES['left'],  'body')
-            right_url = upload_to_s3(request.FILES['right'], 'body')
+            bucket = os.getenv('AWS_STORAGE_BUCKET')
+            access_key = os.getenv('AWS_ACCESS_KEY_ID')
+            
+            # ── Hybrid Local / S3 File Saving Engine ──
+            if not bucket or not access_key:
+                # Local Development Fallback
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'uploads'), base_url='/media/uploads/')
+                
+                front_file = request.FILES['front']
+                back_file = request.FILES['back']
+                side_file = request.FILES['side']
+                
+                # Save locally to your media directory
+                front_name = fs.save(front_file.name, front_file)
+                back_name = fs.save(back_file.name, back_file)
+                side_name = fs.save(side_file.name, side_file)
+                
+                # Construct local serving URLs
+                front_url = f"http://127.0.0.1:8000{fs.url(front_name)}"
+                back_url  = f"http://127.0.0.1:8000{fs.url(back_name)}"
+                side_url  = f"http://127.0.0.1:8000{fs.url(side_name)}"
+            else:
+                # Production S3 Logic (runs when credentials exist)
+                front_url = upload_to_s3(request.FILES['front'], 'body')
+                back_url  = upload_to_s3(request.FILES['back'],  'body')
+                side_url  = upload_to_s3(request.FILES['side'],  'body')
 
         except Exception as e:
             return Response(
-                {'error': f'S3 upload failed: {str(e)}'},
+                {'error': f'File storage processing failed: {str(e)}'},
                 status=500
             )
 
@@ -277,9 +274,8 @@ class BodyUploadView(APIView):
             'user_id':     request.user.id,
             'front_url':   front_url,
             'back_url':    back_url,
-            'left_url':    left_url,
-            'right_url':   right_url,
-            'uploaded_at': datetime.utcnow(),
+            'side_url':    side_url,
+            'uploaded_at': datetime.now(timezone.utc), # Clean timezone-aware alternative to utcnow()
         }
         result = body_uploads_col.insert_one(doc)
         doc['_id'] = result.inserted_id
@@ -290,12 +286,10 @@ class BodyUploadView(APIView):
         """
         GET /api/body/upload/
         Returns the most recent body upload for this user
-        React uses this to check if user has already uploaded
         """
         doc = body_uploads_col.find_one(
             {'user_id': request.user.id},
             sort=[('uploaded_at', -1)]
-            # ↑ sort by uploaded_at descending = most recent first
         )
         if not doc:
             return Response({'error': 'No upload found'}, status=404)
@@ -528,8 +522,7 @@ class TryOnStartView(APIView):
             'status':            'pending',
             'front_result':      None,
             'back_result':       None,
-            'left_result':       None,
-            'right_result':      None,
+            'side_result':       None,
             'style_score':       None,
             'style_feedback':    None,
             'created_at':        datetime.utcnow(),
@@ -557,8 +550,7 @@ class TryOnStatusView(APIView):
         "status": "processing",   ← pending/processing/done/failed
         "front_result": null,     ← null until done
         "back_result": null,
-        "left_result": null,
-        "right_result": null,
+        "side_result": null,
         "style_score": null,
         "style_feedback": null
     }
@@ -568,8 +560,7 @@ class TryOnStatusView(APIView):
         "status": "done",
         "front_result": "https://s3.../result_front.jpg",
         "back_result":  "https://s3.../result_back.jpg",
-        "left_result":  "https://s3.../result_left.jpg",
-        "right_result": "https://s3.../result_right.jpg",
+        "side_result":  "https://s3.../result_side.jpg",
         "style_score":    8.4,
         "style_feedback": "Fits well at shoulders..."
     }

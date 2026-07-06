@@ -1,40 +1,50 @@
 .navbar-container {
   position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 48px);
-      max-width: 1500px;
-      background: var(--nav-bg);
-      background-color: #1b1b1bcc;
-      border: 1px solid white;
-      border-radius: 12px;
-      padding: 14px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      backdrop-filter: blur(12px);
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 1500px;
+  background-color: rgba(27, 27, 27, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 14px 32px;
+  
+  /* ── Push the logo to the left and links wrapper to the right ── */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  
+  z-index: 1000;
+  backdrop-filter: blur(12px);
 }
 
 .navbar-brand {
   font-size: 22px;
   font-weight: 800;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  cursor: pointer;
   color: #57BAE4;
   text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  transition: all 0.2s ease-in-out;
+}
+
+.navbar-brand:hover {
+  color: #ffffff;
+  text-shadow: 0 0 15px rgba(87, 186, 228, 0.6);
 }
 
 .navbar-links {
   display: flex;
-  gap: 8px;
+  gap: 20px; 
   align-items: center;
+  margin-left: auto; 
 }
 
 .navbar-username {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.532);
   padding: 0 8px;
 }
 
@@ -42,10 +52,10 @@
 .nav-link {
   padding: 8px 16px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(13, 227, 255);
   background: transparent;
   transition: all 0.2s ease;
 }

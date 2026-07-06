@@ -10,15 +10,13 @@ function Upload() {
   const [files, setFiles] = useState({
     front: null,
     back: null,
-    left: null,
-    right: null,
+    side: null,
   });
 
   const [previews, setPreviews] = useState({
     front: null,
     back: null,
-    left: null,
-    right: null,
+    side: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -53,8 +51,7 @@ function Upload() {
       const formData = new FormData();
       formData.append('front', files.front);
       formData.append('back',  files.back);
-      formData.append('left',  files.left);
-      formData.append('right', files.right);
+      formData.append('side',  files.side);
       // ↑ FormData is how you send files via HTTP
       // regular JSON can't carry binary file data
       // Django reads these with request.FILES['front'] etc
@@ -92,20 +89,14 @@ function Upload() {
     {
       key:   'back',
       label: 'Back View',
-      icon:  '🚶',
+      icon:  '🧍‍♂️',
       hint:  'Turn around, stand straight',
     },
     {
-      key:   'left',
-      label: 'Left Side',
-      icon:  '🚶‍♂️',
-      hint:  'Turn left, arms slightly out',
-    },
-    {
-      key:   'right',
-      label: 'Right Side',
-      icon:  '🚶‍♀️',
-      hint:  'Turn right, arms slightly out',
+      key:   'side',
+      label: 'Side View',
+      icon:  '🚶',
+      hint:  'Turn side ways, arms slightly out',
     },
   ];
 
@@ -126,7 +117,7 @@ function Upload() {
           <div className="upload-step-badge">Step 1 of 5</div>
           <h1 className="upload-title">Upload Your Photos</h1>
           <p className="upload-subtitle">
-            Upload full-body photos from all 4 angles for
+            Upload full-body photos from all 3 angles for
             accurate body mapping. Good lighting recommended.
           </p>
         </div>
@@ -198,20 +189,16 @@ function Upload() {
         {/* ── Progress indicator ── */}
         <div className="upload-progress">
           <div className="upload-progress-text">
-            {Object.values(files).filter(f => f !== null).length} of 4 photos selected
+            {Object.values(files).filter(f => f !== null).length} of 3 photos selected
           </div>
           {/* ↑ counts how many files are not null */}
           <div className="upload-progress-bar">
             <div
               className="upload-progress-fill"
               style={{
-                width: `${(Object.values(files).filter(f => f !== null).length / 4) * 100}%`
+                width: `${(Object.values(files).filter(f => f !== null).length / 3) * 100}%`
               }}
             />
-            {/* ↑ width = (selected / 4) * 100% */}
-            {/* 0 selected = 0%  */}
-            {/* 2 selected = 50% */}
-            {/* 4 selected = 100%*/}
           </div>
         </div>
 
@@ -229,7 +216,7 @@ function Upload() {
           ) : (
             allSelected
               ? 'Continue to Quiz →'
-              : 'Select all 4 photos to continue'
+              : 'Select all 3 photos to continue'
           )}
           {/* ↑ Button text changes based on state:
               not all selected → tells user what to do
