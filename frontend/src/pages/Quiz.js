@@ -167,6 +167,11 @@ function Quiz() {
   // ↑ true when on question 5 (occasion)
   // Changes Next button to Submit button
 
+  const handleRetakeUpload = () => {
+    localStorage.removeItem('body_upload_id');
+    navigate('/upload');
+  }
+
 return (
     <div className="quiz-page">
 
@@ -184,6 +189,9 @@ return (
           <div className="quiz-step-badge">
             Step 2 of 5 · Question {currentStep + 1} of {QUESTIONS.length}
           </div>
+          <button className="quiz-retake" onClick={handleRetakeUpload}>
+                ↩ Upload Again
+          </button>
           <h1 className="quiz-title">{currentQ.title}</h1>
           <p className="quiz-subtitle">{currentQ.subtitle}</p>
         </div>

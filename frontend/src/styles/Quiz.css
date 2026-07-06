@@ -78,6 +78,18 @@
   margin-bottom: 16px;
 }
 
+.quiz-retake {
+  padding: 4px 12px;
+  margin-left: 10px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  font-size: 12px;
+  color: #f87171;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
 .quiz-title {
   font-size: clamp(22px, 4vw, 32px);
   font-weight: 800;
