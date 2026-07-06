@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import '../styles/Quiz.css'
@@ -82,6 +82,13 @@ function Quiz() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const bodyUploadId = localStorage.getItem('body_upload_id');
+    if (!bodyUploadId) {
+      navigate('/upload', { replace: true });
+    }
+  }, [navigate]);
+
   const [currentStep, setCurrentStep] = useState(0);
   // Which question is showing right now. 0 --> First Question, 4 --> Last Question
 
@@ -143,9 +150,9 @@ function Quiz() {
       // ↑ POST /api/preferences/
       // Django saves answers to MongoDB
       // answers = { gender, clothing, size, material, occasion }
+      localStorage.setItem('quiz_answers', JSON.stringify(answers));
 
-      navigate('/recommendations');
-      // ↑ Go to recommendations page
+      navigate('/recommendations', { replace: true });
 
     } catch (err) {
       setError(

@@ -28,7 +28,7 @@ function Login() {
 
     try {
     await login(username.trim(), password);
-    navigate('/upload');
+    navigate('/');
   } catch(err) {
     const msg = err.response?.data?.error || 'Login failed. Please try again.';
     setError(msg);
