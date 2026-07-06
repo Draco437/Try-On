@@ -1,48 +1,63 @@
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 40px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: rgba(10,10,10,0.95);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
+.navbar-container {
+  position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 48px);
+      max-width: 1500px;
+      background: var(--nav-bg);
+      background-color: #1b1b1bcc;
+      border: 1px solid white;
+      border-radius: 12px;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(12px);
 }
 
-.brand {
+.navbar-brand {
   font-size: 22px;
   font-weight: 800;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  cursor: pointer;
   color: #57BAE4;
   text-decoration: none;
+}
+
+.navbar-links {
   display: flex;
-  align-items: center;
   gap: 8px;
-}
-
-.navLinks {
-  display: flex;
-  gap: 6px;
   align-items: center;
 }
 
-.navLink {
+.navbar-username {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0 8px;
+}
+
+/* Base Nav Link Styles */
+.nav-link {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.2s;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  transition: all 0.2s ease;
 }
 
-.activeLink {
+/* Active Nav Link State */
+.nav-link.active {
   color: #57BAE4;
-  background: rgba(87,186,228,0.1);
+  background: rgba(87, 186, 228, 0.1);
 }
 
-.signUpBtn {
+/* Sign Up Button (Primary) */
+.btn-primary {
   padding: 8px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -50,16 +65,27 @@
   text-decoration: none;
   background: #57BAE4;
   color: #000;
-  transition: all 0.2s;
+  transition: opacity 0.2s ease;
 }
 
-.logoutBtn {
-  padding: 8px 18px;
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Logout Button (Danger) */
+.btn-danger {
+  padding: 8px 16px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
   background: transparent;
   color: #f87171;
-  border: 1px solid rgba(248,113,113,0.3);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: #f87171;
 }

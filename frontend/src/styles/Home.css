@@ -1,0 +1,200 @@
+.home-page {
+  background: radial-gradient(circle at 50% 20%, #0d202e 0%, #060608 70%);
+  min-height: 100vh;
+  color: #fff;
+  padding-top: 40px;
+}
+
+.home-hero {
+  text-align: center;
+  padding: 100px 24px 80px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(87,186,228,0.13) 0%, transparent 65%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.home-h1 {
+  font-size: clamp(38px, 7vw, 76px);
+  font-weight: 900;
+  line-height: 1.08;
+  margin-bottom: 20px;
+  letter-spacing: -2px;
+}
+
+.home-h1-highlight {
+  color: #57BAE4;
+}
+
+.home-hero-sub {
+  font-size: 17px;
+  color: rgba(255,255,255,0.5);
+  max-width: 520px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+.home-btn-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.home-btn-primary {
+  padding: 14px 36px;
+  border-radius: 10px;
+  background: #57BAE4;
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.home-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.home-btn-outline {
+  padding: 14px 36px;
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.home-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.home-stats-row {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  margin-top: 60px;
+  flex-wrap: wrap;
+  border: white;
+  border-radius: 14px;
+}
+
+.home-stat-val {
+  font-size: 32px;
+  font-weight: 800;
+  color: #57BAE4;
+}
+
+.home-stat-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 4px;
+}
+
+/* ── Global Section Framework ── */
+.home-section {
+  padding: 80px 40px;
+  max-width: 1000px;
+  background: radial-gradient(circle at 50% 50%, #0d202e 55%, #060608 70%);
+  margin: 0 auto;
+}
+
+.home-section-head {
+  text-align: center;
+  margin-bottom: 52px;
+}
+
+.home-section-tag {
+  font-size: 15px;
+  color: #57BAE4;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.home-section-title {
+  font-size: 70px;
+  font-weight: 800;
+}
+
+/* ── Informational Progression Steps ── */
+.home-step-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 28px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.home-step-row.no-border {
+  border-bottom: none;
+}
+
+.home-step-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #57BAE4;
+  min-width: 32px;
+  padding-top: 3px;
+}
+
+.home-step-icon {
+  font-size: 24px;
+  min-width: 32px;
+}
+
+.home-step-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.home-step-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+
+.home-features-band {
+  padding: 80px 40px;
+  background: radial-gradient(circle at 50% 50%, #0d202e 40%, #060608 70%);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.home-feat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.home-feat-grid :hover { border-color: rgba(255,255,255,0.25); }
+
+.home-feat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.home-feat-icon {
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.home-feat-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.home-feat-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
