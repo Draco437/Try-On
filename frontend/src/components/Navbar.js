@@ -31,12 +31,6 @@ function Navbar() {
             >
               Upload
             </Link>
-            <Link 
-              to="/wardrobe" 
-              className={`nav-link ${isActive('/wardrobe') ? 'active' : ''}`}
-            >
-              Wardrobe
-            </Link>
             <span className="navbar-username">
               Hi, {user.username}
             </span>
