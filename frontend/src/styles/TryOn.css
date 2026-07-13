@@ -1,0 +1,595 @@
+.tryon-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 35%, #0d202e 25%, #060608 70%);
+  padding: 48px 24px;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+.tryon-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 30% 0%,   rgba(87,186,228,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 100%, rgba(87,186,228,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ── Background icons ────────────────────────────────────── */
+.tryon-bg-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.tryon-bg-icons span {
+  position: absolute;
+  opacity: 0.03;
+  font-size: 52px;
+  animation: floatT 10s ease-in-out infinite;
+  user-select: none;
+}
+
+.tryon-bg-icons span:nth-child(1) { top: 5%;  left: 2%;  animation-delay: 0s;   }
+.tryon-bg-icons span:nth-child(2) { top: 10%; left: 92%; animation-delay: 1s;   }
+.tryon-bg-icons span:nth-child(3) { top: 45%; left: 3%;  animation-delay: 2s;   }
+.tryon-bg-icons span:nth-child(4) { top: 75%; left: 90%; animation-delay: 0.5s; }
+.tryon-bg-icons span:nth-child(5) { top: 88%; left: 45%; animation-delay: 3s;   }
+.tryon-bg-icons span:nth-child(6) { top: 30%; left: 97%; animation-delay: 1.5s; }
+.tryon-bg-icons span:nth-child(7) { top: 92%; left: 10%; animation-delay: 2.5s; }
+.tryon-bg-icons span:nth-child(8) { top: 55%; left: 55%; animation-delay: 0.8s; }
+
+@keyframes floatT {
+  0%, 100% { transform: translateY(0)     rotate(0deg);  }
+  33%       { transform: translateY(-15px) rotate(6deg);  }
+  66%       { transform: translateY(10px)  rotate(-5deg); }
+}
+
+/* ── Container ───────────────────────────────────────────── */
+.tryon-container {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ── Shared ──────────────────────────────────────────────── */
+.tryon-step-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(87, 186, 228, 0.1);
+  border: 1px solid rgba(87, 186, 228, 0.25);
+  font-size: 12px;
+  font-weight: 600;
+  color: #57BAE4;
+  margin-bottom: 14px;
+  margin-top: 65px;
+}
+
+.tryon-title {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.tryon-subtitle {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.tryon-error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #f87171;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ── IDLE STATE ──────────────────────────────────────────── */
+.tryon-idle {
+  text-align: center;
+}
+
+.tryon-product-card {
+  display: flex;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.tryon-product-img {
+  width: 100px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.tryon-product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tryon-product-name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.tryon-product-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tryon-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: capitalize;
+}
+
+.tryon-product-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #57BAE4;
+}
+
+/* ── Pipeline preview (idle) ─────────────────────────────── */
+.tryon-pipeline-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.tryon-pipeline-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.tryon-pipeline-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.tryon-pipeline-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.tryon-pipeline-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.4;
+}
+
+/* ── Start / Back buttons ────────────────────────────────── */
+.tryon-start-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  background: #57BAE4;
+  color: #000;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 32px rgba(87, 186, 228, 0.2);
+}
+
+.tryon-start-btn:hover {
+  background: #3da8d4;
+  transform: translateY(-1px);
+}
+
+.tryon-back-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tryon-back-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+/* ── PROCESSING STATE ────────────────────────────────────── */
+.tryon-processing {
+  text-align: center;
+}
+
+.tryon-stages {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  position: relative;
+  gap: 8px;
+}
+
+.tryon-stage {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.tryon-stage-line {
+  position: absolute;
+  top: 20px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 0;
+  transition: background 0.4s;
+}
+
+.tryon-stage-line.done {
+  background: #4ade80;
+}
+
+.tryon-stage-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  font-size: 16px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.4s;
+}
+
+.tryon-stage.active .tryon-stage-dot {
+  border-color: #57BAE4;
+  background: rgba(87, 186, 228, 0.15);
+  box-shadow: 0 0 16px rgba(87, 186, 228, 0.3);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.tryon-stage.done .tryon-stage-dot {
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(87, 186, 228, 0.3); }
+  50%       { box-shadow: 0 0 24px rgba(87, 186, 228, 0.6); }
+}
+
+.tryon-stage-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 4px;
+}
+
+.tryon-stage-desc {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.4;
+}
+
+.tryon-stage.active .tryon-stage-label { color: #57BAE4; }
+.tryon-stage.done   .tryon-stage-label { color: #4ade80; }
+
+/* ── Progress bar (processing) ───────────────────────────── */
+.tryon-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.tryon-progress-fill {
+  height: 100%;
+  background: #57BAE4;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.tryon-progress-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 20px;
+}
+
+/* ── View chips (processing) ─────────────────────────────── */
+.tryon-views-progress {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tryon-view-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: capitalize;
+}
+
+.tryon-view-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #57BAE4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESULT STATE ────────────────────────────────────────── */
+.tryon-results {
+  text-align: center;
+}
+
+/* ── 360 Viewer ──────────────────────────────────────────── */
+.tryon-viewer {
+  margin-bottom: 24px;
+}
+
+.tryon-viewer-main {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tryon-viewer-img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  background: #111;
+}
+
+.tryon-viewer-label {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: capitalize;
+}
+
+.tryon-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+  z-index: 2;
+}
+
+.tryon-arrow:hover       { background: rgba(255, 255, 255, 0.2); }
+.tryon-arrow-left        { left: 10px;  }
+.tryon-arrow-right       { right: 10px; }
+
+/* ── View tabs ───────────────────────────────────────────── */
+.tryon-view-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tryon-view-tab {
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: capitalize;
+}
+
+.tryon-view-tab:hover  { background: rgba(255,255,255,0.1); color: #fff; }
+.tryon-view-tab.active {
+  background: rgba(87, 186, 228, 0.15);
+  border-color: rgba(87, 186, 228, 0.4);
+  color: #57BAE4;
+}
+
+/* ── Thumbnail strip ─────────────────────────────────────── */
+.tryon-thumbs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.tryon-thumb {
+  width: 70px;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.tryon-thumb.active { border-color: #57BAE4; }
+
+.tryon-thumb img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.tryon-thumb-label {
+  font-size: 10px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 3px 0;
+  text-transform: capitalize;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ── AI Feedback ─────────────────────────────────────────── */
+.tryon-feedback {
+  background: rgba(87, 186, 228, 0.06);
+  border: 1px solid rgba(87, 186, 228, 0.2);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.tryon-feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #57BAE4;
+  margin-bottom: 10px;
+}
+
+.tryon-score {
+  margin-left: auto;
+  background: rgba(87, 186, 228, 0.15);
+  border: 1px solid rgba(87, 186, 228, 0.3);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 13px;
+}
+
+.tryon-feedback-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.7;
+}
+
+/* ── Action buttons ──────────────────────────────────────── */
+.tryon-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tryon-action-btn {
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tryon-action-btn.save {
+  background: #57BAE4;
+  color: #000;
+}
+
+.tryon-action-btn.save:hover  { background: #3da8d4; }
+
+.tryon-action-btn.retry {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.tryon-action-btn.retry:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ── FAILED STATE ────────────────────────────────────────── */
+.tryon-failed {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.tryon-failed-icon {
+  font-size: 52px;
+  margin-bottom: 16px;
+}
+
+.tryon-failed h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.tryon-failed p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 28px;
+}

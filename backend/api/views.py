@@ -1,9 +1,3 @@
-# api/views.py
-# ─────────────────────────────────────────────────────────────
-# Business logic — receives request from React
-# talks to MongoDB, returns JSON response
-# ─────────────────────────────────────────────────────────────
-
 import boto3
 import uuid
 from datetime import datetime, timezone
@@ -435,49 +429,37 @@ class ClothingItemView(APIView):
     """
     GET /api/clothing/<item_id>/
     Returns a single clothing item by ID
-    React uses this on the detail/preview page
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, item_id):
         from bson import ObjectId
 
-        try:
-            doc = clothing_col.find_one({'_id': ObjectId(item_id)})
-        except Exception:
-            return Response({'error': 'Invalid item ID'}, status=400)
+        # ── 1. Check if 'item_id' matches standard '_id' or custom 'id' field as string ──
+        doc = clothing_col.find_one({
+            '$or': [
+                {'_id': str(item_id)},
+                {'id': str(item_id)}
+            ]
+        })
+        
+        # ── 2. Fallback to native ObjectId if it matches hex string layout ──
+        if not doc:
+            try:
+                if len(item_id) == 24 and all(c in '0123456789abcdefABCDEF' for c in item_id):
+                    doc = clothing_col.find_one({'_id': ObjectId(item_id)})
+            except Exception:
+                pass
 
         if not doc:
-            return Response({'error': 'Item not found'}, status=404)
+            return Response({'error': f'Clothing item {item_id} not found'}, status=404)
 
         return Response(serialize_clothing_item(doc))
 
 
-# ═══════════════════════════════════════════════════════════════
-# TRYON VIEWS
-# ═══════════════════════════════════════════════════════════════
-
 class TryOnStartView(APIView):
     """
     POST /api/tryon/start/
-
-    React sends:
-    {
-        "body_upload_id": "64abc...",
-        "clothing_item_id": "64xyz..."
-    }
-
-    We:
-    1. Validate both IDs exist in MongoDB
-    2. Create a TryOnJob with status=pending
-    3. Fire Celery task (ML pipeline runs in background)
-    4. Return job_id immediately
-
-    React receives:
-    { "job_id": "64job..." }
-
-    Then React polls /api/tryon/status/<job_id>/
-    every 2 seconds until status = done
     """
     permission_classes = [IsAuthenticated]
 
@@ -505,20 +487,30 @@ class TryOnStartView(APIView):
         if not body:
             return Response({'error': 'Body upload not found'}, status=404)
 
-        # ── Validate clothing item exists ──
-        try:
-            clothing = clothing_col.find_one({'_id': ObjectId(clothing_item_id)})
-        except Exception:
-            return Response({'error': 'Invalid clothing_item_id'}, status=400)
+        # ── 1. Check if 'clothing_item_id' matches standard '_id' or custom 'id' field ──
+        clothing = clothing_col.find_one({
+            '$or': [
+                {'_id': str(clothing_item_id)},
+                {'id': str(clothing_item_id)}
+            ]
+        })
+        
+        # ── 2. Fallback to native ObjectId format ──
+        if not clothing:
+            try:
+                if isinstance(clothing_item_id, str) and len(clothing_item_id) == 24 and all(c in '0123456789abcdefABCDEF' for c in clothing_item_id):
+                    clothing = clothing_col.find_one({'_id': ObjectId(clothing_item_id)})
+            except Exception:
+                pass
 
         if not clothing:
-            return Response({'error': 'Clothing item not found'}, status=404)
+            return Response({'error': f'Clothing item {clothing_item_id} not found'}, status=404)
 
         # ── Create TryOnJob in MongoDB ──
         job = {
             'user_id':           request.user.id,
             'body_upload_id':    body_upload_id,
-            'clothing_item_id':  clothing_item_id,
+            'clothing_item_id':  str(clothing_item_id),
             'status':            'pending',
             'front_result':      None,
             'back_result':       None,
@@ -531,8 +523,6 @@ class TryOnStartView(APIView):
         job_id = str(result.inserted_id)
 
         # ── Fire Celery task ──
-        # This returns immediately
-        # ML pipeline runs in background worker
         run_tryon_pipeline.delay(job_id)
 
         return Response({'job_id': job_id}, status=201)

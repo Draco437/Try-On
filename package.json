@@ -6,7 +6,8 @@
   "scripts": {
     "backend": "cd backend && venv\\Scripts\\activate && python manage.py runserver",
     "frontend": "cd frontend && npm start",
-    "dev": "concurrently --kill-others-on-fail \"npm run backend\" \"npm run frontend\""
+    "celery": "cd backend && venv\\Scripts\\activate && celery -A main worker --loglevel=info -P solo",
+    "dev": "concurrently --kill-others-on-fail \"npm run backend\" \"npm run frontend\" \"npm run celery\""
   },
   "repository": {
     "type": "git",

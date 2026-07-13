@@ -1,6 +1,6 @@
 .quiz-page {
   min-height: 100vh;
-  background: #0a0a0a;
+  background: radial-gradient(circle at 50% 35%, #0d202e 25%, #060608 70%);
   padding: 48px 24px;
   position: relative;
   overflow: hidden;
