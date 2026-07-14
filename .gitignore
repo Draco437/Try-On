@@ -17,6 +17,7 @@ frontend/build/
 # Media & Uploads
 backend/media/
 media/
+*.sqlite3
 
 # All __pycache__ folders everywhere
 /**/__pycache__/

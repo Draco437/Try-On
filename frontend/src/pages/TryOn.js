@@ -368,19 +368,6 @@ function TryOn() {
               </div>
             </div>
 
-            {results.feedback && (
-              <div className="tryon-feedback">
-                <div className="tryon-feedback-header">
-                  <span>🧠</span>
-                  <span>AI Style Analysis</span>
-                  {results.score && (
-                    <span className="tryon-score">{results.score}/10</span>
-                  )}
-                </div>
-                <p className="tryon-feedback-text">{results.feedback}</p>
-              </div>
-            )}
-
             <div className="tryon-actions">
               <button className="tryon-action-btn retry" onClick={() => navigate('/recommendations')}>
                 👗 Try Another

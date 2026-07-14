@@ -6,30 +6,8 @@ import requests
 import uuid
 import shutil
 import time
-from gradio_client import Client, handle_file
-from PIL import Image
 
 from .db import tryon_jobs_col, body_uploads_col, clothing_col
-
-
-# ── HELPER: Resize & Compress Image to Prevent Timeouts ───────
-def compress_and_prep_image(input_path, max_dim=1024):
-    """
-    Downscales large user images to max_dim and saves as lightweight JPEG.
-    Reduces upload time to HF Space from 10s+ to sub-second.
-    """
-    try:
-        with Image.open(input_path) as img:
-            img = img.convert("RGB")
-            img.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
-            
-            # Save compressed temp file
-            compressed_path = input_path.rsplit('.', 1)[0] + '_prep.jpg'
-            img.save(compressed_path, "JPEG", quality=85)
-            return compressed_path
-    except Exception as e:
-        print(f"⚠️ Image compression failed: {e}")
-        return input_path
 
 
 # ── HELPER: Download image to temp file ──────────────────────
@@ -98,6 +76,7 @@ def upload_to_s3(source_path, view_name):
 # ── HELPER: Crop white padding ────────────────────────────────
 def crop_white_padding(source_path):
     try:
+        from PIL import Image
         import numpy as np
 
         img       = Image.open(source_path).convert('RGB')
@@ -127,6 +106,57 @@ def crop_white_padding(source_path):
         return source_path
 
 
+# ── CORE: Run Leffa with retry ────────────────────────────────
+def run_leffa(person_path, garment_path, garment_type='upper_body', max_retries=3):
+    """
+    Runs Leffa with automatic retry on failure.
+    HF Space sometimes sleeps — retry wakes it up.
+    """
+    from gradio_client import Client, handle_file
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"🔌 Connecting to Leffa (attempt {attempt}/{max_retries})...")
+            client = Client("franciszzj/Leffa")
+            print("✅ Connected")
+            print(f"🚀 Running try-on ({garment_type})...")
+
+            result = client.predict(
+                handle_file(person_path),
+                handle_file(garment_path),
+                False,
+                30,
+                2.5,
+                42,
+                "viton_hd",
+                garment_type,
+                False,
+                api_name="/leffa_predict_vt"
+            )
+
+            print(f"📦 Raw result: {result}")
+
+            if result and isinstance(result, (list, tuple)):
+                result_path = result[0]
+                if isinstance(result_path, dict):
+                    result_path = result_path.get('path') or result_path.get('url')
+                if result_path:
+                    print(f"✅ Result path: {result_path}")
+                    return str(result_path)
+
+            print(f"⚠️ Empty result on attempt {attempt}")
+
+        except Exception as e:
+            print(f"❌ Attempt {attempt} failed: {type(e).__name__}: {e}")
+            if attempt < max_retries:
+                wait = attempt * 10
+                print(f"⏳ Waiting {wait}s before retry...")
+                time.sleep(wait)
+
+    print(f"❌ All {max_retries} attempts failed")
+    return None
+
+
 # ── HELPER: Garment type mapping ─────────────────────────────
 def get_garment_type(category):
     upper = ['tshirt', 'shirt', 'jacket']
@@ -138,94 +168,45 @@ def get_garment_type(category):
     else:                   return 'upper_body'
 
 
-# ── HELPER: Connect to Leffa Space ───────────────────────────
-def get_leffa_client(max_attempts=3):
-    """Connects to the Leffa HF Space with extended timeout settings."""
-    hf_token = os.getenv('HF_TOKEN')
-    
-    for attempt in range(1, max_attempts + 1):
-        print(f"🔌 Connecting to Leffa HF Space (attempt {attempt}/{max_attempts})...")
-        try:
-            # Adding upload_files=True & setting explicit timeout if supported
-            kwargs = {"max_workers": 1}
-            if hf_token:
-                try:
-                    client = Client("franciszzj/Leffa", token=hf_token, **kwargs)
-                except TypeError:
-                    client = Client("franciszzj/Leffa", hf_token=hf_token, **kwargs)
-                print("✅ Connected with HF Token")
-            else:
-                client = Client("franciszzj/Leffa", **kwargs)
-                print("⚠️ Connected anonymously")
-
-            return client
-
-        except Exception as e:
-            print(f"❌ Connection attempt {attempt} failed: {type(e).__name__}: {e}")
-            if attempt < max_attempts:
-                wait = 3 * attempt
-                print(f"⏳ Waiting {wait}s before retry...")
-                time.sleep(wait)
-            else:
-                raise
-
-
-# ── HELPER: Process single view with Leffa ───────────────────
-def process_one_view_with_leffa(client, person_url, garment_path, garment_type, view_name):
-    print(f"\n--- Processing {view_name.upper()} view ---")
+# ── HELPER: Process one view ──────────────────────────────────
+def process_view(person_url, garment_path, garment_type, view_name):
+    """
+    Returns (url, ai_applied) — ai_applied is False whenever we fell
+    back to the original photo (quota exceeded, timeout, any failure),
+    so the frontend can tell the difference between a real try-on
+    result and an unedited photo instead of both looking identical.
+    """
+    print(f"\n--- {view_name.upper()} view ---")
 
     if not person_url:
-        print(f"⚠️ No URL provided for {view_name}")
-        return None
+        print(f"⚠️ No URL for {view_name}")
+        return None, False
 
-    raw_person_path = download_to_temp(person_url)
-    if not raw_person_path:
+    person_path = download_to_temp(person_url)
+    if not person_path:
         print(f"⚠️ Download failed for {view_name} — using original")
-        return person_url
-
-    # Pre-process image to drastically cut down file size & prevent SSL timeout
-    person_path = compress_and_prep_image(raw_person_path)
+        return person_url, False
 
     try:
-        print(f"🚀 Running try-on prediction ({garment_type})...")
-        result = client.predict(
-            handle_file(person_path),
-            handle_file(garment_path),
-            False,
-            15,           # Lowered steps to reduce processing time on HF
-            2.5,
-            42,
-            "viton_hd",
-            garment_type,
-            False,
-            api_name="/leffa_predict_vt"
-        )
-
-        result_path = None
-        if result and isinstance(result, (list, tuple)):
-            result_path = result[0]
-            if isinstance(result_path, dict):
-                result_path = result_path.get('path') or result_path.get('url')
+        result_path = run_leffa(person_path, garment_path, garment_type)
 
         if result_path:
-            result_path = crop_white_padding(str(result_path))
+            result_path = crop_white_padding(result_path)
             saved_url   = upload_to_s3(result_path, view_name)
             if not saved_url:
                 saved_url = save_result_to_media(result_path, view_name)
             print(f"✅ {view_name} saved: {saved_url}")
-            return saved_url
+            return saved_url, True
         else:
-            print(f"⚠️ Leffa returned empty result for {view_name} — using original photo")
-            return person_url
+            print(f"⚠️ Leffa failed for {view_name} — using original photo")
+            return person_url, False
 
     except Exception as e:
-        print(f"❌ Leffa failed for {view_name}: {e} — using original photo")
-        return person_url
+        print(f"❌ {view_name} error: {e}")
+        return person_url, False
     finally:
-        for p in [raw_person_path, person_path]:
-            if p and os.path.exists(p):
-                try: os.unlink(p)
-                except Exception: pass
+        try: os.unlink(person_path)
+        except: pass
 
 
 # ── STYLE ANALYSIS ────────────────────────────────────────────
@@ -263,28 +244,32 @@ def run_tryon_pipeline(self, job_id):
     )
 
     try:
-        # ── Step 1: Get body upload ──────────────────────────────
+        # ── Get body upload ──────────────────────────────
         body = body_uploads_col.find_one({'_id': ObjectId(job['body_upload_id'])})
         if not body:
             raise Exception('Body upload not found')
         print(f"✅ Body upload: {body.get('_id')}")
 
-        # ── Step 2: Get clothing item ────────────────────────────
+        # ── Get clothing item ────────────────────────────
+        # FIX: search by both 'id' (p001) AND '_id' (ObjectId)
         clothing_item_id = str(job['clothing_item_id'])
         print(f"🔍 Looking for clothing: {clothing_item_id}")
 
         clothing = clothing_col.find_one({'id': clothing_item_id})
 
         if not clothing:
+            # Try as ObjectId
             try:
                 clothing = clothing_col.find_one({'_id': ObjectId(clothing_item_id)})
             except Exception:
                 pass
 
         if not clothing:
+            # Try by MongoDB _id as string (when serializer returns str(_id))
             clothing = clothing_col.find_one({'_id': clothing_item_id})
 
         if not clothing:
+            # Last resort — list all and show what we have
             sample = list(clothing_col.find().limit(3))
             sample_ids = [(str(s.get('_id')), s.get('id'), s.get('name')) for s in sample]
             print(f"❌ Clothing not found. Sample items: {sample_ids}")
@@ -302,14 +287,12 @@ def run_tryon_pipeline(self, job_id):
         if not garment_url:
             raise Exception('No image URL on clothing item')
 
-        # ── Step 3: Download & prep garment image ────────────────
-        raw_garment_path = download_to_temp(garment_url)
-        if not raw_garment_path:
+        # ── Download garment once ────────────────────────
+        garment_path = download_to_temp(garment_url)
+        if not garment_path:
             raise Exception('Failed to download garment image')
 
-        garment_path = compress_and_prep_image(raw_garment_path)
-
-        # ── Step 4: Get person photo URLs ────────────────────────
+        # ── Get person photo URLs ────────────────────────
         front_url = body.get('front_url')
         back_url  = body.get('back_url')
         side_url  = body.get('side_url')
@@ -318,46 +301,26 @@ def run_tryon_pipeline(self, job_id):
         print(f"📸 back:  {bool(back_url)}")
         print(f"📸 side:  {bool(side_url)}")
 
-        # ── Step 5: Connect to Leffa ONCE ────────────────────────
-        leffa_client = get_leffa_client()
+        # ── Run Leffa explicitly on each view ────────────
+        # NOTE: Explicit calls — NOT a loop — guarantees order
+        front_result, front_ai = process_view(front_url, garment_path, garment_type, 'front')
+        back_result, back_ai  = process_view(back_url,  garment_path, garment_type, 'back')
+        side_result, side_ai  = process_view(side_url,  garment_path, garment_type, 'side')
 
-        # ── Step 6: Process views ────────────────────────────────
-        # ALWAYS process front view
-        front_result = process_one_view_with_leffa(
-            leffa_client, front_url, garment_path, garment_type, 'front'
-        )
-
-        # OPTIMIZATION FOR FREE HF QUOTA:
-        # Runs back/side views only if PRODUCTION_MODE is set in .env.
-        is_production = os.getenv('PRODUCTION_MODE', 'false').lower() == 'true'
-
-        if is_production:
-            back_result = process_one_view_with_leffa(
-                leffa_client, back_url, garment_path, garment_type, 'back'
-            )
-            side_result = process_one_view_with_leffa(
-                leffa_client, side_url, garment_path, garment_type, 'side'
-            )
-        else:
-            print("⚡ DEV MODE: Reusing original back & side photos to save GPU quota.")
-            back_result = back_url
-            side_result = side_url
+        ai_applied_any = front_ai or back_ai or side_ai
 
         print(f"\n📊 Results:")
         print(f"  FRONT: {front_result}")
         print(f"  BACK:  {back_result}")
         print(f"  SIDE:  {side_result}")
 
-        # Cleanup temp garments
-        for p in [raw_garment_path, garment_path]:
-            if p and os.path.exists(p):
-                try: os.unlink(p)
-                except Exception: pass
+        try: os.unlink(garment_path)
+        except: pass
 
-        # ── Step 7: Style analysis ───────────────────────────────
+        # ── Style analysis ───────────────────────────────
         style_score, style_feedback = analyze_style(category)
 
-        # ── Step 8: Save result to MongoDB ───────────────────────
+        # ── Save to MongoDB ──────────────────────────────
         tryon_jobs_col.update_one(
             {'_id': ObjectId(job_id)},
             {'$set': {
@@ -365,6 +328,10 @@ def run_tryon_pipeline(self, job_id):
                 'front_result':   front_result,
                 'back_result':    back_result,
                 'side_result':    side_result,
+                'front_ai_applied': front_ai,
+                'back_ai_applied': back_ai,
+                'side_ai_applied': side_ai,
+                'ai_applied':     ai_applied_any,
                 'style_score':    style_score,
                 'style_feedback': style_feedback,
                 'completed_at':   datetime.utcnow(),

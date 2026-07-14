@@ -247,10 +247,12 @@ class BodyUploadView(APIView):
                 back_name = fs.save(back_file.name, back_file)
                 side_name = fs.save(side_file.name, side_file)
                 
-                # Construct local serving URLs
-                front_url = f"http://127.0.0.1:8000{fs.url(front_name)}"
-                back_url  = f"http://127.0.0.1:8000{fs.url(back_name)}"
-                side_url  = f"http://127.0.0.1:8000{fs.url(side_name)}"
+                BACKEND_URL = os.getenv('BACKEND_URL', 'http://127.0.0.1:8000')
+                
+                front_url = f"{BACKEND_URL}{fs.url(front_name)}"
+                back_url = f"{BACKEND_URL}{fs.url(back_name)}"
+                side_url = f"{BACKEND_URL}{fs.url(side_name)}"
+                
             else:
                 # Production S3 Logic (runs when credentials exist)
                 front_url = upload_to_s3(request.FILES['front'], 'body')
