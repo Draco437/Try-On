@@ -43,7 +43,6 @@ const features = [
   { icon: '🎨', title: 'Realistic Blending',   desc: 'OpenCV compositing merges the warped garment onto your photo seamlessly.' },
   { icon: '🧠', title: 'Style Analysis',       desc: 'ML model scores the outfit fit and generates personalized style feedback.' },
   { icon: '🔁', title: '360° Result Viewer',   desc: 'See the try-on from front, back, left and right — all 4 views.' },
-  { icon: '👗', title: 'Wardrobe History',     desc: 'Every try-on saved to your personal gallery. Revisit anytime.' },
   { icon: '⚡', title: 'Fast Processing',      desc: 'Celery + Redis task queue processes your try-on in the background.' },
 ];
 
@@ -82,9 +81,11 @@ function Home() {
           <button className="home-btn-primary" onClick={handleStart}>
             {user ? 'Go to Upload →' : 'Get Started Free'}
           </button>
-          <button className="home-btn-outline" onClick={() => navigate(user ? '/wardrobe' : '/login')}>
-            {user ? 'My Wardrobe' : 'Login'}
-          </button>
+          {!user && (
+    <button className="home-btn-outline" onClick={() => navigate('/login')}>
+      Login
+    </button>
+  )}
         </div>
 
         <div className="home-stats-row">

@@ -11,7 +11,6 @@ import Upload from './pages/Upload';
 import Quiz from './pages/Quiz';
 import Recommendations from './pages/Recommendations';
 import TryOn from './pages/TryOn';
-import Wardrobe from './pages/Wardrobe';
 
 function App() {
   return (
@@ -35,7 +34,6 @@ function App() {
         <Route path='/quiz' element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
         <Route path='/recommendations' element={<ProtectedRoute><Recommendations /></ProtectedRoute>} />
         <Route path='/tryon' element={<ProtectedRoute><TryOn /></ProtectedRoute>} />
-        <Route path='/wardrobe' element={<ProtectedRoute><Wardrobe /></ProtectedRoute>} />
       </Routes>
     </Router>
     </AuthProvider>
