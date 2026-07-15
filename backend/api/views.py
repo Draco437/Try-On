@@ -633,13 +633,45 @@ class ProductCreateListView(APIView):
 
     def post(self, request):
         name = request.data.get('name', '').strip()
-        image_url = request.data.get('image', '').strip() # Expecting URL string or base64 data string
+        image_url = request.data.get('image', '').strip() 
         price = request.data.get('price', 0)
-        gender = request.data.get('gender')
-        category = request.data.get('clothing') # Mapping form 'clothing' to DB 'category'
-        size = request.data.get('size')
-        material = request.data.get('material', '')
-        occasion = request.data.get('occasion', '')
+        
+        # --- NORMALIZATION LOGIC TO MATCH DB SCHEMA ---
+        raw_gender = request.data.get('gender', '')
+        # Map "Male" -> "M" and "Female" -> "F"
+        if raw_gender in ['Male', 'M', 'm']:
+            gender = 'M'
+        elif raw_gender in ['Female', 'F', 'f']:
+            gender = 'F'
+        else:
+            gender = raw_gender
+
+        # Map "Tshirt" -> "tshirt"
+        raw_category = request.data.get('clothing', '')
+        category = raw_category.strip().lower() if raw_category else ''
+
+        # Map "Cotton" -> "cotton"
+        raw_material = request.data.get('material', '')
+        material = raw_material.strip().lower() if raw_material else ''
+
+        # Ensure size is stored as an array of uppercase letters (e.g., ["L"])
+        raw_size = request.data.get('size')
+        if isinstance(raw_size, list):
+            size = [s.strip().upper() for s in raw_size if isinstance(s, str)]
+        elif isinstance(raw_size, str):
+            size = [raw_size.strip().upper()]
+        else:
+            size = []
+
+        # Ensure occasion is stored as an array of lowercase strings (e.g., ["casual"])
+        raw_occasion = request.data.get('occasion', '')
+        if isinstance(raw_occasion, list):
+            occasion = [o.strip().lower() for o in raw_occasion if isinstance(o, str)]
+        elif isinstance(raw_occasion, str):
+            occasion = [o.strip().lower() for o in raw_occasion.split(',') if o.strip()]
+        else:
+            occasion = []
+        # ----------------------------------------------
 
         # Basic validations
         if not name or not image_url or not category:
@@ -650,16 +682,16 @@ class ProductCreateListView(APIView):
 
         # Structure document payload to match your database schema perfectly
         doc = {
-            'id': str(uuid.uuid4()), # Generate a generic lookup string fallback identifier
+            'id': str(uuid.uuid4()), 
             'name': name,
-            'category': category,
-            'gender': gender,
-            'size': size,
-            'material': material,
-            'occasion': occasion,
+            'category': category,      # Saved as lowercase (e.g. "tshirt")
+            'gender': gender,          # Saved as abbreviation (e.g. "M")
+            'size': size,              # Saved as Array (e.g. ["L"])
+            'material': material,      # Saved as lowercase (e.g. "cotton")
+            'occasion': occasion,      # Saved as Array (e.g. ["casual"])
             'image_url': image_url,
             'price': float(price) if price else 0.0,
-            'created_by': request.user.id, # Tracks who uploaded it if you ever need to isolate custom items
+            'created_by': request.user.id, 
             'created_at': datetime.now(timezone.utc)
         }
 
