@@ -115,38 +115,24 @@ def serialize_preference(doc):
 def serialize_clothing_item(doc):
     """
     Converts a clothing_items MongoDB document → JSON
-
-    Input (from MongoDB):
-    {
-        '_id': ObjectId('...'),
-        'name': 'Blue Cotton T-Shirt',
-        'category': 'tshirt',
-        'material': 'cotton',
-        'color': 'blue',
-        'size': 'L',
-        'gender': 'M',
-        'occasion': 'casual',
-        'image_url': 'https://s3...',
-        'price': 599.00
-    }
-
-    Output (for React):
-    {
-        'id': '64abc123...',
-        'name': 'Blue Cotton T-Shirt',
-        ... same fields ...
-    }
+    Handles both native _id and custom string id attributes safely.
     """
     if not doc:
         return None
 
+    # Determine the best ID field to expose to the frontend
+    # Checks for custom 'id' string first, falls back safely to '_id'
+    frontend_id = doc.get('id')
+    if not frontend_id and '_id' in doc:
+        frontend_id = str(doc['_id'])
+
     return {
-        'id':        str(doc['_id']),
+        'id':        str(frontend_id) if frontend_id else '',
         'name':      doc.get('name', ''),
         'category':  doc.get('category', ''),
         'material':  doc.get('material', ''),
         'color':     doc.get('color', ''),
-        'size':      doc.get('size', ''),
+        'size':      doc.get('size', ''),  # Returns the array safely to the frontend
         'gender':    doc.get('gender', ''),
         'occasion':  doc.get('occasion', ''),
         'image_url': doc.get('image_url', ''),

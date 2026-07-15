@@ -261,7 +261,10 @@ class RecommendationView(APIView):
 
         if pref.get('size'):
             raw_size = pref.get('size')
-            query['size'] = raw_size.strip().upper() if isinstance(raw_size, str) else raw_size
+            normalized_size = raw_size.strip().upper() if isinstance(raw_size, str) else raw_size
+
+            # Use $in to look inside the size array stored in MongoDB
+            query['size'] = {'$in': [normalized_size]}
 
         if pref.get('material'):
             raw_material = pref.get('material')
