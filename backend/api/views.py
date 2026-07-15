@@ -368,24 +368,6 @@ class PreferenceView(APIView):
 class RecommendationView(APIView):
     """
     GET /api/recommend/
-
-    We:
-    1. Get user preference from MongoDB
-    2. Filter clothing_items by preference
-    3. Return matching items
-
-    React receives:
-    [
-        {
-            "id": "...",
-            "name": "Blue Cotton T-Shirt",
-            "category": "tshirt",
-            "size": "L",
-            "image_url": "...",
-            "price": 599
-        },
-        ...
-    ]
     """
     permission_classes = [IsAuthenticated]
 
@@ -399,28 +381,42 @@ class RecommendationView(APIView):
                 status=400
             )
 
+        # ── Normalize Quiz Preferences to match Database Format ──
+        raw_clothing = pref.get('clothing', '')
+        category_query = raw_clothing.strip().lower() if raw_clothing else ''
+
+        raw_gender = pref.get('gender', '')
+        if raw_gender in ['Male', 'M', 'm']:
+            gender_query = 'M'
+        elif raw_gender in ['Female', 'F', 'f']:
+            gender_query = 'F'
+        else:
+            gender_query = raw_gender
+
         # ── Build MongoDB filter from preference ──
         query = {
-            'category': pref.get('clothing'),
-            'gender':   pref.get('gender'),
+            'category': category_query,
+            'gender':   gender_query,
         }
 
-        # Add size filter only if provided
+        # Add size filter only if provided (converted to uppercase string)
         if pref.get('size'):
-            query['size'] = pref['size']
+            raw_size = pref.get('size')
+            query['size'] = raw_size.strip().upper() if isinstance(raw_size, str) else raw_size
 
-        # Add material filter only if provided
+        # Add material filter only if provided (converted to lowercase string)
         if pref.get('material'):
-            query['material'] = pref['material']
+            raw_material = pref.get('material')
+            query['material'] = raw_material.strip().lower() if isinstance(raw_material, str) else raw_material
 
         # ── Query MongoDB ──
         items = list(clothing_col.find(query))
 
-        # ── If no exact match, broaden search ──
+        # ── If no exact match, broaden search using normalized values ──
         if not items:
             items = list(clothing_col.find({
-                'category': pref.get('clothing'),
-                'gender':   pref.get('gender'),
+                'category': category_query,
+                'gender':   gender_query,
             }))
 
         return Response(serialize_list(items, serialize_clothing_item))
