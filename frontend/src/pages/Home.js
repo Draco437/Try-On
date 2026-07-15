@@ -62,6 +62,10 @@ function Home() {
     navigate(user ? '/upload' : '/register');
   }
 
+  const handleStart1 = () => {
+    navigate(user ? '/wardrobe' : '/login');
+  }
+
   return (
     <div className="home-page">
 
@@ -81,11 +85,14 @@ function Home() {
           <button className="home-btn-primary" onClick={handleStart}>
             {user ? 'Go to Upload →' : 'Get Started Free'}
           </button>
-          {!user && (
+          <button className="home-btn-primary" onClick={handleStart1}>
+            {user ? 'Wardrobe →' : 'Login'}
+          </button>
+          {/* {!user && (
     <button className="home-btn-outline" onClick={() => navigate('/login')}>
       Login
     </button>
-  )}
+  )} */}
         </div>
 
         <div className="home-stats-row">

@@ -121,16 +121,20 @@ def run_leffa(person_path, garment_path, garment_type='upper_body', max_retries=
             print("✅ Connected")
             print(f"🚀 Running try-on ({garment_type})...")
 
+            # Updated parameters for higher generation quality
+            num_inference_steps = 50  # Increased from 30 for better quality/details
+            guidance_scale = 3.0     # Tuned within the recommended 2.5 - 3.5 sweet spot
+
             result = client.predict(
                 handle_file(person_path),
                 handle_file(garment_path),
-                False,
-                30,
-                2.5,
-                42,
-                "viton_hd",
+                False,                # src_image_bound
+                num_inference_steps,  # 30 -> changed to 50
+                guidance_scale,       # 2.5 -> changed to 3.0
+                42,                   # seed
+                "viton_hd",           # target_model
                 garment_type,
-                False,
+                False,                # is_real_time
                 api_name="/leffa_predict_vt"
             )
 

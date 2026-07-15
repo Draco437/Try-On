@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tryon-backend
+    env: python
+    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py sync_products
+    startCommand: gunicorn main.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB_NAME
+        value: fitai_db
+      - key: REDIS_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

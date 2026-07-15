@@ -1,0 +1,140 @@
+.wardrobe-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.wardrobe-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 9.5rem;
+  margin-bottom: 3.5rem;
+  background: radial-gradient(circle at 50% 35%, #0d202e 25%, #060608 70%);
+  color: #f3f4f6;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+  padding-bottom: 50px;
+}
+
+/* Cards styling */
+.product-card {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Image scaling */
+.product-image-wrapper {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background-color: #262626;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Content block inside card */
+.product-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+/* Row containing Title and Price */
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.product-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #38bdf8; /* Light blue accent color */
+}
+
+/* Badges / Tags Flexbox Layout */
+.product-details-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Increased from 6px to give tags more horizontal space */
+  margin-top: 4px;
+}
+
+.detail-tag {
+  font-size: 0.75rem;
+  font-weight: 600; /* Made slightly bolder for readability */
+  padding: 6px 10px; /* Enhanced padding inside the badges */
+  border-radius: 6px;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.tag-gender {
+  background-color: #2e1065;
+  color: #ddd6fe;
+}
+
+/* FIX: High contrast text color for the green badge */
+.tag-type {
+  background-color: #059669; /* Slightly brighter green background */
+  color: #ffffff;            /* Force clean white text so it stands out */
+}
+
+.tag-size {
+  background-color: #1e3a8a;
+  color: #bfdbfe;
+}
+
+/* Bottom spacing styles */
+.product-footer-details {
+  border-top: 1px solid #2a2a2a;
+  padding-top: 12px;
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Increased vertical space between Material and Occasion rows */
+}
+
+.product-footer-details p {
+  margin: 0;
+  display: flex;
+  gap: 6px; /* Adds physical space between the 'Material:' label and its text value */
+}
+
+.product-footer-details strong {
+  color: #9ca3af;
+  min-width: 65px; /* Keeps the labels aligned nicely */
+}
