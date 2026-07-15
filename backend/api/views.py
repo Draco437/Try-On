@@ -30,7 +30,6 @@ from .tasks import run_tryon_pipeline
 
 import os
 
-
 # ── HELPER: Generate JWT tokens ───────────────────────────────
 def get_tokens_for_user(user):
     """
@@ -610,3 +609,85 @@ class WardrobeView(APIView):
         # ↑ sort by newest first, max 20 results
 
         return Response(serialize_list(jobs, serialize_tryon_job))
+
+
+# ═══════════════════════════════════════════════════════════════
+# PRODUCT MANAGEMENT VIEWS
+# ═══════════════════════════════════════════════════════════════
+
+class ProductCreateListView(APIView):
+    """
+    POST /api/products/
+    Adds a custom user product to the global MongoDB clothing collection.
+    
+    GET /api/products/
+    Returns all products in the catalog.
+    """
+    # Allow authenticated users to view/add custom items
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Fetch all global products from the database
+        items = list(clothing_col.find({}))
+        return Response(serialize_list(items, serialize_clothing_item), status=200)
+
+    def post(self, request):
+        name = request.data.get('name', '').strip()
+        image_url = request.data.get('image', '').strip() # Expecting URL string or base64 data string
+        price = request.data.get('price', 0)
+        gender = request.data.get('gender')
+        category = request.data.get('clothing') # Mapping form 'clothing' to DB 'category'
+        size = request.data.get('size')
+        material = request.data.get('material', '')
+        occasion = request.data.get('occasion', '')
+
+        # Basic validations
+        if not name or not image_url or not category:
+            return Response(
+                {'error': 'Product name, image, and category type are required'},
+                status=400
+            )
+
+        # Structure document payload to match your database schema perfectly
+        doc = {
+            'id': str(uuid.uuid4()), # Generate a generic lookup string fallback identifier
+            'name': name,
+            'category': category,
+            'gender': gender,
+            'size': size,
+            'material': material,
+            'occasion': occasion,
+            'image_url': image_url,
+            'price': float(price) if price else 0.0,
+            'created_by': request.user.id, # Tracks who uploaded it if you ever need to isolate custom items
+            'created_at': datetime.now(timezone.utc)
+        }
+
+        # Insert directly into your global MongoDB catalog collection
+        result = clothing_col.insert_one(doc)
+        doc['_id'] = result.inserted_id
+
+        return Response(serialize_clothing_item(doc), status=201)
+    
+    def delete(self, request):
+        # Expect the product ID to be passed as a query parameter: ?id=XYZ
+        product_id = request.query_params.get('id')
+        
+        if not product_id:
+            return Response({'error': 'Product ID is required'}, status=400)
+            
+        # Delete from your MongoDB collection
+        result = clothing_col.delete_one({'id': product_id})
+        
+        if result.deleted_count == 0:
+            # Fallback check for MongoDB's native _id if necessary
+            from bson import ObjectId
+            try:
+                result = clothing_col.delete_one({'_id': ObjectId(product_id)})
+            except:
+                pass
+
+        if result.deleted_count > 0:
+            return Response({'message': 'Product deleted successfully'}, status=200)
+        
+        return Response({'error': 'Product not found'}, status=404)

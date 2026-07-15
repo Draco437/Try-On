@@ -15,7 +15,72 @@
   letter-spacing: 0.05em;
 }
 
-/* Responsive Grid */
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 30px; 
+}
+
+.add-custom-btn {
+  background-color: #38bdf8; 
+  color: #ffffff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+.add-custom-btn:hover {
+  background-color: #0ea5e9; 
+  transform: translateY(-1px); 
+  box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2); 
+}
+
+.add-custom-btn:active {
+  transform: translateY(1px);
+}
+
+/* Inline row structure at the top of the card block */
+.delete-btn-container {
+  width: 100%;
+  padding: 8px 0;
+  display: flex;
+  justify-content: center;
+  background-color: transparent;
+}
+
+/* Red block button styling matching standard CSS syntax rules */
+.delete-product-btn {
+  background: rgba(255, 75, 75, 0.9);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 90%;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.delete-product-btn:hover {
+  background: rgb(235, 40, 40);
+  transform: translateY(-1px);
+}
+
+.delete-product-btn:active {
+  transform: translateY(0);
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -23,7 +88,6 @@
   padding-bottom: 50px;
 }
 
-/* Cards styling */
 .product-card {
   background-color: #1a1a1a;
   border: 1px solid #2a2a2a;
@@ -39,7 +103,6 @@
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Image scaling */
 .product-image-wrapper {
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -53,7 +116,6 @@
   object-fit: cover;
 }
 
-/* Content block inside card */
 .product-info {
   padding: 16px;
   display: flex;
@@ -62,7 +124,6 @@
   flex-grow: 1;
 }
 
-/* Row containing Title and Price */
 .product-header {
   display: flex;
   justify-content: space-between;
@@ -80,21 +141,20 @@
 .product-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #38bdf8; /* Light blue accent color */
+  color: #38bdf8; 
 }
 
-/* Badges / Tags Flexbox Layout */
 .product-details-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* Increased from 6px to give tags more horizontal space */
+  gap: 10px; 
   margin-top: 4px;
 }
 
 .detail-tag {
   font-size: 0.75rem;
-  font-weight: 600; /* Made slightly bolder for readability */
-  padding: 6px 10px; /* Enhanced padding inside the badges */
+  font-weight: 600; 
+  padding: 6px 10px; 
   border-radius: 6px;
   text-transform: capitalize;
   display: inline-block;
@@ -105,10 +165,9 @@
   color: #ddd6fe;
 }
 
-/* FIX: High contrast text color for the green badge */
 .tag-type {
-  background-color: #059669; /* Slightly brighter green background */
-  color: #ffffff;            /* Force clean white text so it stands out */
+  background-color: #059669;
+  color: #ffffff; 
 }
 
 .tag-size {
@@ -116,7 +175,6 @@
   color: #bfdbfe;
 }
 
-/* Bottom spacing styles */
 .product-footer-details {
   border-top: 1px solid #2a2a2a;
   padding-top: 12px;
@@ -125,16 +183,16 @@
   color: #e5e7eb;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Increased vertical space between Material and Occasion rows */
+  gap: 8px; 
 }
 
 .product-footer-details p {
   margin: 0;
   display: flex;
-  gap: 6px; /* Adds physical space between the 'Material:' label and its text value */
+  gap: 6px; 
 }
 
 .product-footer-details strong {
   color: #9ca3af;
-  min-width: 65px; /* Keeps the labels aligned nicely */
+  min-width: 65px; 
 }

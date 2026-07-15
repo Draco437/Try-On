@@ -10,6 +10,7 @@ from .views import (
     TryOnStartView,
     TryOnStatusView,
     WardrobeView,
+    ProductCreateListView,
 )
 
 urlpatterns = [
@@ -32,4 +33,6 @@ urlpatterns = [
     path('tryon/status/<str:job_id>/', TryOnStatusView.as_view()),
 
     path('wardrobe/',      WardrobeView.as_view()),
+
+    path('products/', ProductCreateListView.as_view(), name='product-create-list'),
 ]

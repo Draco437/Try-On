@@ -34,7 +34,13 @@ function TryOn() {
 
     localStorage.removeItem('tryon_job_id');
 
-    setProduct(JSON.parse(savedProduct));
+    // Parse product data and dynamically handle fallback structure
+    const parsedProduct = JSON.parse(savedProduct);
+    if (parsedProduct) {
+      parsedProduct.image = parsedProduct.image_url || parsedProduct.image;
+    }
+
+    setProduct(parsedProduct);
     setBodyUploadId(savedBodyId);
 
     return () => {
@@ -69,7 +75,6 @@ function TryOn() {
     },
   ];
 
-  // Strictly kept to front, back, side as requested
   const VIEWS = ['front', 'back', 'side'];
   
   const handleStart = async () => {
@@ -83,7 +88,6 @@ function TryOn() {
       return;
     }
 
-    // ── Full reset ──
     if (pollRef.current) clearInterval(pollRef.current);
     setError('');
     setStatus('pending');
@@ -108,16 +112,13 @@ function TryOn() {
       setStatus('failed');
       setError(err.response?.data?.error || 'Failed to start. Try again.');
     }
-};
+  };
 
   const startPolling = (id) => {
-    // Clear any existing poll
     if (pollRef.current) clearInterval(pollRef.current);
 
-    // Animate pipeline stages
     let stageTimer = 0;
     const stageDurations = [8000, 8000, 10000, 8000];
-    // ↑ longer durations — Leffa takes 60-120s total
     const stageTimerIds = [];
 
     stageDurations.forEach((duration, index) => {
@@ -130,12 +131,10 @@ function TryOn() {
 
     let pollFailCount = 0;
     const MAX_POLL_FAILS = 5;
-    const MAX_POLL_TIME  = 10 * 60 * 1000; // 10 minutes max
+    const MAX_POLL_TIME  = 10 * 60 * 1000;
     const pollStart      = Date.now();
 
     pollRef.current = setInterval(async () => {
-
-      // Timeout guard — stop after 10 minutes
       if (Date.now() - pollStart > MAX_POLL_TIME) {
         clearInterval(pollRef.current);
         stageTimerIds.forEach(t => clearTimeout(t));
@@ -147,7 +146,7 @@ function TryOn() {
       try {
         const res = await API.get(`tryon/status/${id}/`);
         const job = res.data;
-        pollFailCount = 0; // reset on success
+        pollFailCount = 0;
 
         if (job.status === 'done') {
           clearInterval(pollRef.current);
@@ -161,7 +160,6 @@ function TryOn() {
             score:    job.style_score,
             feedback: job.style_feedback,
           });
-          // ── Clear job from localStorage when done ──
           localStorage.removeItem('current_job_id');
         }
 
@@ -177,17 +175,15 @@ function TryOn() {
         pollFailCount++;
         console.warn(`Poll error ${pollFailCount}/${MAX_POLL_FAILS}:`, err.message);
 
-        // Only fail after 5 consecutive network errors
         if (pollFailCount >= MAX_POLL_FAILS) {
           clearInterval(pollRef.current);
           stageTimerIds.forEach(t => clearTimeout(t));
           setStatus('failed');
           setError('Lost connection to server. Please try again.');
         }
-        // Otherwise keep polling — temporary network hiccup
       }
-    }, 3000); // poll every 3 seconds
-};
+    }, 3000);
+  };
 
   return (
     <div className="tryon-page">
@@ -278,7 +274,7 @@ function TryOn() {
                   </div>
                   <div className="tryon-stage-label">{stage.label}</div>
                   <div className="tryon-stage-desc">
-                    {activeStage > i   ? 'Complete'      :
+                    {activeStage > i   ? 'Complete'    :
                      activeStage === i ? stage.desc      :
                      'Waiting...'}
                   </div>
@@ -328,7 +324,6 @@ function TryOn() {
                 />
                 <div className="tryon-viewer-label">{currentView} view</div>
 
-                {/* Arrow Navigation using exact modulo 3 calculation bounds */}
                 <button className="tryon-arrow tryon-arrow-left"
                   onClick={() => {
                     const idx = VIEWS.indexOf(currentView);
@@ -377,33 +372,32 @@ function TryOn() {
         )}
 
         {status === 'failed' && (
-  <div className="tryon-failed">
-    <div className="tryon-failed-icon">❌</div>
-    <h2>Something went wrong</h2>
-    <p>{error || 'The ML pipeline failed. Please try again.'}</p>
-    <button
-      className="tryon-start-btn"
-      onClick={() => {
-        // ── Full reset to idle ──
-        if (pollRef.current) clearInterval(pollRef.current);
-        setStatus('idle');
-        setError('');
-        setActiveStage(-1);
-        setResults(null);
-        localStorage.removeItem('current_job_id');
-      }}
-    >
-      Try Again
-    </button>
-    <button
-      className="tryon-back-btn"
-      style={{ marginTop: '12px' }}
-      onClick={() => navigate('/recommendations')}
-    >
-      ← Choose Different Item
-    </button>
-  </div>
-)}
+          <div className="tryon-failed">
+            <div className="tryon-failed-icon">❌</div>
+            <h2>Something went wrong</h2>
+            <p>{error || 'The ML pipeline failed. Please try again.'}</p>
+            <button
+              className="tryon-start-btn"
+              onClick={() => {
+                if (pollRef.current) clearInterval(pollRef.current);
+                setStatus('idle');
+                setError('');
+                setActiveStage(-1);
+                setResults(null);
+                localStorage.removeItem('current_job_id');
+              }}
+            >
+              Try Again
+            </button>
+            <button
+              className="tryon-back-btn"
+              style={{ marginTop: '12px' }}
+              onClick={() => navigate('/recommendations')}
+            >
+              ← Choose Different Item
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

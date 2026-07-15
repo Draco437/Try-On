@@ -1,0 +1,117 @@
+/* ==========================================
+   Custom Product Form Styles (custom.js)
+   ========================================== */
+
+/* Dark Theme Form Layout Container */
+.custom-form-layout {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto 50px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Individual Form Group (Label + Input wrapper) */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Label styling */
+.form-group label {
+  color: #a3a3a3;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Input boxes and Dropdown fields */
+.form-group input, 
+.form-group select {
+  background-color: #0d0d0d;
+  border: 1px solid #3a3a3a;
+  color: #ffffff;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Input custom placeholder styling */
+.form-group input::placeholder {
+  color: #525252;
+}
+
+/* Active focus states for input highlights */
+.form-group input:focus, 
+.form-group select:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+}
+
+/* Fix dropdown arrow background color matching dark UI on chrome */
+.form-group select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background-color: #0d0d0d;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+  padding: 4px 8px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #38bdf8; 
+  cursor: pointer;
+}
+
+/* ADD PRODUCT Submit Button */
+.submit-form-btn {
+  background-color: #059669; /* Rich emerald green */
+  color: #ffffff;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  letter-spacing: 0.05em;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect for form submission */
+.submit-form-btn:hover {
+  background-color: #047857; /* Deeper green */
+}
+
+/* Active pressed state */
+.submit-form-btn:active {
+  transform: scale(0.98);
+}

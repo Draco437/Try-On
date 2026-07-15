@@ -12,6 +12,7 @@ import Quiz from './pages/Quiz';
 import Recommendations from './pages/Recommendations';
 import TryOn from './pages/TryOn';
 import Wardrobe from './pages/Wardrobe';
+import CustomProductForm from './pages/Custom';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         {/* Protected routes — must be logged in */}
         <Route path='/upload' element={<ProtectedRoute><Upload /></ProtectedRoute>} />
         <Route path='/wardrobe' element={<ProtectedRoute><Wardrobe /></ProtectedRoute>} />
+        <Route path='/custom' element={<ProtectedRoute><CustomProductForm /></ProtectedRoute>} />
         <Route path='/quiz' element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
         <Route path='/recommendations' element={<ProtectedRoute><Recommendations /></ProtectedRoute>} />
         <Route path='/tryon' element={<ProtectedRoute><TryOn /></ProtectedRoute>} />
