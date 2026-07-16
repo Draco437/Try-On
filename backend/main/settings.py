@@ -70,6 +70,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:5173',
+    'https://tryon-frontend-a3qp.onrender.com',
 ]
 
 # Dynamically append FRONTEND_URL only if it exists in the environment

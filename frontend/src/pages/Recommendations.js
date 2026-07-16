@@ -1,82 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // 1. Added axios import
+import axios from 'axios'; 
 import '../styles/Recommendations.css';
-
-// 2. Cleaned up filterProducts to expect the dynamic product catalog array from the backend
-function filterProducts(answers, productsCatalog) {
-  if (!answers || !productsCatalog || productsCatalog.length === 0) return [];
-
-  // 1. Force lowercase across all user answers for safety
-  const ansGender = (answers.gender || '').toLowerCase();
-  const ansClothing = (answers.clothing || '').toLowerCase().replace('-', ''); // matches 't-shirt' to 'tshirt'
-  const ansSize = (answers.size || '').toLowerCase();
-  const ansMaterial = (answers.material || '').toLowerCase();
-  const ansOccasion = (answers.occasion || '').toLowerCase();
-
-  let filtered = productsCatalog.filter(product => {
-    // 2. Safely capture database keys and cast to lowercase strings
-    const prodGender = (product.gender || '').toLowerCase();
-    
-    const rawCategory = product.category || product.clothing || '';
-    const prodCategory = rawCategory.toLowerCase().replace('-', '');
-
-    const prodMaterial = (product.material || '').toLowerCase();
-
-    // 3. Handle Size checking (String vs Array safely)
-    let matchSize = false;
-    if (Array.isArray(product.size)) {
-      matchSize = product.size.map(s => String(s).toLowerCase()).includes(ansSize);
-    } else {
-      matchSize = String(product.size || '').toLowerCase() === ansSize;
-    }
-
-    // 4. Handle Occasion tracking ("casual, party" vs ["casual", "party"])
-    let matchOccasion = false;
-    if (Array.isArray(product.occasion)) {
-      matchOccasion = product.occasion.map(o => String(o).toLowerCase()).includes(ansOccasion);
-    } else {
-      // Safely check if the string contains the quiz value substring
-      matchOccasion = String(product.occasion || '').toLowerCase().includes(ansOccasion);
-    }
-
-    // 5. Build match matrices
-    const matchGender = prodGender === ansGender;
-    const matchCategory = prodCategory === ansClothing;
-    const matchMaterial = ansMaterial === 'any' || prodMaterial === ansMaterial;
-
-    return matchGender && matchCategory && matchSize && matchMaterial && matchOccasion;
-  });
-
-  // --- Cascading Fallbacks If Filter Criteria is Too Tight ---
-  
-  // Fallback 1: Drop occasion/material constraint, retain core layout matching
-  if (filtered.length === 0) {
-    filtered = productsCatalog.filter(product => {
-      const prodGender = (product.gender || '').toLowerCase();
-      const prodCategory = (product.category || product.clothing || '').toLowerCase().replace('-', '');
-      
-      let matchSize = false;
-      if (Array.isArray(product.size)) {
-        matchSize = product.size.map(s => String(s).toLowerCase()).includes(ansSize);
-      } else {
-        matchSize = String(product.size || '').toLowerCase() === ansSize;
-      }
-
-      return prodGender === ansGender && prodCategory === ansClothing && matchSize;
-    });
-  }
-
-  // Fallback 2: Drop everything except basic type categorization
-  if (filtered.length === 0) {
-    filtered = productsCatalog.filter(product => {
-      const prodCategory = (product.category || product.clothing || '').toLowerCase().replace('-', '');
-      return prodCategory === ansClothing;
-    });
-  }
-
-  return filtered;
-}
 
 function Recommendations() {
   const navigate = useNavigate();
@@ -85,7 +10,7 @@ function Recommendations() {
   const [filtered, setFiltered] = useState([]);
   const [selected, setSelected] = useState(null);
   const [noResults, setNoResults] = useState(false);
-  const [loading, setLoading] = useState(true); // 3. Added loading state
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchCatalogAndFilter = async () => {
@@ -100,28 +25,27 @@ function Recommendations() {
       setAnswers(parsedAnswers);
 
       try {
-        // 4. Hit the new endpoint we added to Django backend!
-        const token = localStorage.getItem('access_token'); // Ensure your token matches your auth key name
-        const response = await axios.get('http://localhost:8000/api/products/', {
+        // Hit the tailored recommendation endpoint on the Django backend
+        const token = localStorage.getItem('access_token'); 
+        const response = await axios.get('https://tryon-backend-azbd.onrender.com/api/recommend/', {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
 
-        const productsCatalog = response.data; // Expecting the array from ProductCreateListView
+        // The backend already handles size checking, fallback logic, and database operations natively
+        const recommendedProducts = response.data; 
         
-        // 5. Pass database values through the filter logic
-        const results = filterProducts(parsedAnswers, productsCatalog);
-        setFiltered(results);
+        // Pass the already filtered array directly to your UI state
+        setFiltered(recommendedProducts);
 
-        if (results.length === 0) {
+        if (recommendedProducts.length === 0) {
           setNoResults(true);
         } else {
           setNoResults(false);
         }
       } catch (error) {
         console.error("Error connecting to catalog service:", error);
-        // Fallback banner if backend is unreachable during your tests
         setNoResults(true);
       } finally {
         setLoading(false);
@@ -132,7 +56,6 @@ function Recommendations() {
   }, [navigate]);
 
   const handleSelect = (product) => {
-    // Fall back to MongoDB _id if standard id is missing
     setSelected(product.id || product._id);
   };
 
@@ -143,7 +66,6 @@ function Recommendations() {
   const handleTryOn = () => {
     if (!selected) return;
 
-    // Check both unique identifier names
     const product = filtered.find(p => (p.id === selected || p._id === selected));
     localStorage.setItem('selected_product', JSON.stringify(product));
     navigate('/tryon');
@@ -154,7 +76,6 @@ function Recommendations() {
     navigate('/quiz');
   };
 
-  // Render full screen loader while backend serves the dataset
   if (loading) {
     return (
       <div className="rec-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#fff' }}>
@@ -231,7 +152,7 @@ function Recommendations() {
                   {/* ── Product image ── */}
                   <div className="rec-card-img-wrap">
                     <img
-                      src={product.image_url || product.image} // Fallback support for database image schemas
+                      src={product.image_url || product.image} 
                       alt={product.name}
                       className="rec-card-img"
                       onError={(e) => {
