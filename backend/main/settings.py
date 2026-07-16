@@ -157,6 +157,16 @@ CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 # ↑ Celery also stores task results in Redis
 # So we can check: is the AI job done yet?
 
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'ssl': {
+        'ssl_cert_reqs': 'none'  # Disables strict SSL certificate validation
+    }
+}
+
+CELERY_REDIS_BACKEND_USE_SSL = {
+    'ssl_cert_reqs': 'none'     # Ensures the result backend also bypasses strict validation
+}
+
 CELERY_ACCEPT_CONTENT  = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 # ↑ Tasks are passed as JSON between Django and Celery worker
