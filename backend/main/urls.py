@@ -31,6 +31,6 @@ urlpatterns = [
     path('api/refresh/',    TokenRefreshView.as_view()),
 ]
 
-# 2. Append the media list using += at the bottom
-if settings.DEBUG:
+# 2. Serve media files if in DEBUG mode OR if AWS cloud storage is not explicitly configured
+if settings.DEBUG or not getattr(settings, 'AWS_STORAGE_BUCKET_NAME', None):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

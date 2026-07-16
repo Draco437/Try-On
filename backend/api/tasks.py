@@ -43,7 +43,7 @@ def save_result_to_media(source_path, view_name):
         shutil.copy2(source_path, dest_path)
         print(f"✅ Saved result: {dest_path}")
 
-        backend_url = os.getenv('BACKEND_URL', 'http://127.0.0.1:8000')
+        backend_url = os.getenv('BACKEND_URL', 'http://127.0.0.1:8000').rstrip('/')
         return f"{backend_url}/media/results/{filename}"
     except Exception as e:
         print(f"❌ Save failed: {e}")

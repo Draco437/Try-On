@@ -153,15 +153,19 @@ function TryOn() {
           stageTimerIds.forEach(t => clearTimeout(t));
           setStatus('done');
           setActiveStage(4);
+
+          // Helper function to replace accidental double slashes (except in http:// or https://)
+          const cleanUrl = (url) => url ? url.replace(/([^:]\/)\/+/g, "$1") : url;
+          
           setResults({
-            front:    job.front_result,
-            back:     job.back_result,
-            side:     job.side_result,
-            score:    job.style_score,
-            feedback: job.style_feedback,
-          });
-          localStorage.removeItem('current_job_id');
-        }
+    front:    cleanUrl(job.front_result),
+    back:     cleanUrl(job.back_result),
+    side:     cleanUrl(job.side_result),
+    score:    job.style_score,
+    feedback: job.style_feedback,
+  });
+  localStorage.removeItem('current_job_id');
+}
 
         if (job.status === 'failed') {
           clearInterval(pollRef.current);
