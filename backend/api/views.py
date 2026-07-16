@@ -242,7 +242,7 @@ class RecommendationView(APIView):
         if not pref:
             return Response({'error': 'Please complete the quiz first'}, status=400)
 
-        # ── Data normalization backup ──
+        # ── 1. PRIMARY FILTER: Always filter by Category and Gender ──
         raw_clothing = pref.get('clothing', '')
         category_query = raw_clothing.strip().lower() if raw_clothing else ''
 
@@ -259,26 +259,32 @@ class RecommendationView(APIView):
             'gender':   gender_query,
         }
 
-        if pref.get('size'):
-            raw_size = pref.get('size')
-            normalized_size = raw_size.strip().upper() if isinstance(raw_size, str) else raw_size
-
-            # Use $in to look inside the size array stored in MongoDB
-            query['size'] = {'$in': [normalized_size]}
-
-        if pref.get('material'):
-            raw_material = pref.get('material')
-            query['material'] = raw_material.strip().lower() if isinstance(raw_material, str) else raw_material
-
-        # ── Query MongoDB ──
+        # Fetch base matches based on category + gender
         items = list(clothing_col.find(query))
 
-        # ── If no exact match, fallback to broader category match ──
+        # ── 2. SECONDARY FILTER: Refine in-memory by Size ──
+        if items and pref.get('size'):
+            raw_size = pref.get('size')
+            normalized_size = raw_size.strip().upper() if isinstance(raw_size, str) else raw_size
+            
+            # Loop through found items and check if user's size exists in the product's size array
+            size_filtered_items = [
+                item for item in items 
+                if isinstance(item.get('size'), list) and normalized_size in item.get('size')
+            ]
+            
+            # If matching sizes are found, use them! Otherwise, fall back to the base items
+            if size_filtered_items:
+                items = size_filtered_items
+
+        # ── 3. SAFETY FALLBACKS: Never return an empty list ──
+        # If no items matched category + gender, fall back to just category
         if not items:
-            items = list(clothing_col.find({
-                'category': category_query,
-                'gender':   gender_query,
-            }))
+            items = list(clothing_col.find({'category': category_query}))
+
+        # Absolute fallback: if still nothing, return all clothing items
+        if not items:
+            items = list(clothing_col.find({}))
 
         return Response(serialize_list(items, serialize_clothing_item))
 
