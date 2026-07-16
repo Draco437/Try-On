@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import '../styles/TryOn.css';
 
+// TODO: Replace this with your actual Render backend service URL
+const BACKEND_BASE_URL = "https://your-backend-service-name.onrender.com";
+
 function TryOn() {
   const navigate  = useNavigate();
   const pollRef   = useRef(null);
@@ -154,18 +157,27 @@ function TryOn() {
           setStatus('done');
           setActiveStage(4);
 
-          // Helper function to replace accidental double slashes (except in http:// or https://)
-          const cleanUrl = (url) => url ? url.replace(/([^:]\/)\/+/g, "$1") : url;
+          // Formats relative links into absolute backend links safely
+          const cleanUrl = (url) => {
+            if (!url) return url;
+            // If it's already an absolute cloud URL (e.g., http:// or https://), clean double slashes and return
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+              return url.replace(/([^:]\/)\/+/g, "$1");
+            }
+            // Ensure leading slash formatting
+            const safePath = url.startsWith('/') ? url : `/${url}`;
+            return `${BACKEND_BASE_URL}${safePath}`.replace(/([^:]\/)\/+/g, "$1");
+          };
           
           setResults({
-    front:    cleanUrl(job.front_result),
-    back:     cleanUrl(job.back_result),
-    side:     cleanUrl(job.side_result),
-    score:    job.style_score,
-    feedback: job.style_feedback,
-  });
-  localStorage.removeItem('current_job_id');
-}
+            front:    cleanUrl(job.front_result),
+            back:     cleanUrl(job.back_result),
+            side:     cleanUrl(job.side_result),
+            score:    job.style_score,
+            feedback: job.style_feedback,
+          });
+          localStorage.removeItem('current_job_id');
+        }
 
         if (job.status === 'failed') {
           clearInterval(pollRef.current);
