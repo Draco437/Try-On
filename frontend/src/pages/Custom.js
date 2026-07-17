@@ -57,7 +57,8 @@ function CustomProductForm() {
 const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com';
 
 try {
-  const response = await axios.post(`${BACKEND_URL}/api/products/`, payload, {
+  // REMOVED /api/ -> Points directly to /products/ to match urls.py
+  const response = await axios.post(`${BACKEND_URL}/products/`, payload, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'

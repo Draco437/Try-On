@@ -17,11 +17,11 @@ function Wardrobe() {
         const token = localStorage.getItem('access_token'); 
 
         // Updated: Points to live deployed backend url
-        const response = await axios.get(`${BACKEND_URL}/api/products/`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await axios.get(`${BACKEND_URL}/products/`, {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
 
         const customItems = response.data.map(item => ({
           ...item,
@@ -51,11 +51,11 @@ function Wardrobe() {
       const token = localStorage.getItem('access_token');
       
       // Updated: Points to live deployed backend url
-      await axios.delete(`${BACKEND_URL}/api/products/?id=${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await axios.delete(`${BACKEND_URL}/products/?id=${productId}`, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
 
       // Update the UI state instantly without requiring a page reload
       setAllProducts(prev => prev.filter(p => p.id !== productId && p._id !== productId));
