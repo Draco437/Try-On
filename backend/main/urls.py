@@ -15,9 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path  # Added re_path here
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve           # Added serve here
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/refresh/',    TokenRefreshView.as_view()),
 ]
 
-# 2. Serve media files if in DEBUG mode OR if AWS cloud storage is not explicitly configured
-if settings.DEBUG or not getattr(settings, 'AWS_STORAGE_BUCKET_NAME', None):
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# 2. Force Django to serve media files in production on Render
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
