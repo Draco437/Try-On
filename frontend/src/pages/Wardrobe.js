@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Wardrobe.css';
-import initialProducts from '../data/products.json';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'axios'; 
 
 function Wardrobe() {
   const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   
-  // ── LIVE BACKEND URL DEFINITION ─────────────────────────────
   const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com'; 
 
   useEffect(() => {
@@ -16,22 +14,21 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
-        // Updated: Points to live deployed backend url
+        // Uses standard axios directly with the direct root path
         const response = await axios.get(`${BACKEND_URL}/products/`, {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
-        const customItems = response.data.map(item => ({
+        const databaseItems = response.data.map(item => ({
           ...item,
           image: item.image_url || item.image 
         }));
 
-        setAllProducts([...initialProducts, ...customItems]);
+        setAllProducts(databaseItems);
       } catch (error) {
         console.error("Error fetching items from database:", error);
-        setAllProducts(initialProducts);
       }
     };
 
@@ -50,14 +47,12 @@ function Wardrobe() {
     try {
       const token = localStorage.getItem('access_token');
       
-      // Updated: Points to live deployed backend url
       await axios.delete(`${BACKEND_URL}/products/?id=${productId}`, {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
-      // Update the UI state instantly without requiring a page reload
       setAllProducts(prev => prev.filter(p => p.id !== productId && p._id !== productId));
       alert("Product removed successfully!");
     } catch (error) {
@@ -77,7 +72,6 @@ function Wardrobe() {
         {allProducts.map((product, index) => (
           <div key={product.id || product._id || `${product.name}-${index}`} className="product-card custom-product-card">
 
-            {/* Structured container row keeping the button nested neatly inside the card */}
             {product && (
               <div className="delete-btn-container">
                 <button 
