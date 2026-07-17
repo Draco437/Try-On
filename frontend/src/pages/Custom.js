@@ -53,23 +53,25 @@ function CustomProductForm() {
       occasion: formData.occasion.join(', ') // "casual, outdoor"
     };
 
-    try {
-      // 2. Add the headers object as the third argument to bypass the 401 Auth error
-      const response = await axios.post('http://localhost:8000/api/products/', payload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.status === 201) {
-        alert("Product added successfully to database!");
-        navigate('/wardrobe'); // Redirect back to wardrobe
-      }
-    } catch (error) {
-      console.error("Error uploading custom product to MongoDB:", error);
-      alert("Failed to add product to database.");
+    // Change this line from localhost to your deployed render URL
+const BACKEND_URL = 'https://tryon-backend.onrender.com'; // Replace with your actual tryon-backend live URL
+
+try {
+  const response = await axios.post(`${BACKEND_URL}/api/products/`, payload, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     }
+  });
+  
+  if (response.status === 201) {
+    alert("Product added successfully to database!");
+    navigate('/wardrobe'); 
+  }
+} catch (error) {
+  console.error("Error uploading custom product to MongoDB:", error);
+  alert("Failed to add product to database.");
+}
   };
 
   return (
