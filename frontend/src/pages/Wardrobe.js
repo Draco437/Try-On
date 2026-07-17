@@ -9,7 +9,7 @@ function Wardrobe() {
   const [allProducts, setAllProducts] = useState([]);
   
   // ── LIVE BACKEND URL DEFINITION ─────────────────────────────
-  const BACKEND_URL = 'https://tryon-backend.onrender.com'; 
+  const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com'; 
 
   useEffect(() => {
     const fetchCustomProducts = async () => {

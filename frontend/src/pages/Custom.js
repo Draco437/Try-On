@@ -54,7 +54,7 @@ function CustomProductForm() {
     };
 
     // Change this line from localhost to your deployed render URL
-const BACKEND_URL = 'https://tryon-backend.onrender.com'; // Replace with your actual tryon-backend live URL
+const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com';
 
 try {
   const response = await axios.post(`${BACKEND_URL}/api/products/`, payload, {
