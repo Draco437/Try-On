@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Wardrobe.css';
-import initialProducts from '../data/products.json';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,22 +15,23 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
-        // Updated: Points to live deployed backend url
-        const response = await axios.get(`${BACKEND_URL}/products/`, {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
+        // FIX: Route updated to /api/products/ to match Django's URL routing prefix
+        const response = await axios.get(`${BACKEND_URL}/api/products/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
-        const customItems = response.data.map(item => ({
+        const databaseItems = response.data.map(item => ({
           ...item,
           image: item.image_url || item.image 
         }));
 
-        setAllProducts([...initialProducts, ...customItems]);
+        // Since the database safely stores both default seeds and custom items,
+        // we can set state directly from the DB response to eliminate structural duplicates.
+        setAllProducts(databaseItems);
       } catch (error) {
         console.error("Error fetching items from database:", error);
-        setAllProducts(initialProducts);
       }
     };
 
@@ -50,12 +50,12 @@ function Wardrobe() {
     try {
       const token = localStorage.getItem('access_token');
       
-      // Updated: Points to live deployed backend url
-      await axios.delete(`${BACKEND_URL}/products/?id=${productId}`, {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});
+      // FIX: URL path targeted to /api/products/ matching the updated API configuration
+      await axios.delete(`${BACKEND_URL}/api/products/?id=${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       // Update the UI state instantly without requiring a page reload
       setAllProducts(prev => prev.filter(p => p.id !== productId && p._id !== productId));

@@ -573,29 +573,36 @@ class Command(BaseCommand):
 
         self.stdout.write(f'Found {len(products)} products built-in')
 
-        # Clear existing and re-insert
-        clothing_col.delete_many({})
-        self.stdout.write('Cleared existing clothing items')
+        # ── MODIFIED: Safeguard Custom Data ─────────────────────────────────
+        # Removed clothing_col.delete_many({}) to prevent wiping custom entries.
+        self.stdout.write('Syncing built-in dataset safely using upsert operations...')
 
         for product in products:
-            # Store with both 'id' and 'image_url' fields
+            # Prepare the standard document mapping fields appropriately
             doc = {
-                'id':           product['id'],
-                'name':         product['name'],
-                'category':     product['category'],
-                'gender':       product['gender'],
-                'size':         product['size'],
-                'material':     product['material'],
-                'color':        product['color'],
-                'occasion':     product['occasion'],
-                'price':        product['price'],
-                'rating':       product['rating'],
-                'image_url':    product['image'],  # Map 'image' -> 'image_url'
-                'description':  product.get('description', ''),
+                'id':          product['id'],
+                'name':        product['name'],
+                'category':    product['category'],
+                'gender':      product['gender'],
+                'size':        product['size'],
+                'material':    product['material'],
+                'color':       product['color'],
+                'occasion':    product['occasion'],
+                'price':       product['price'],
+                'rating':      product['rating'],
+                'image_url':   product['image'],  # Map 'image' -> 'image_url'
+                'description': product.get('description', ''),
             }
-            clothing_col.insert_one(doc)
-            self.stdout.write(f"  ✅ {product['id']} — {product['name']}")
+
+            # Upsert checks if an item with this unique 'id' string exists.
+            # If yes, updates it; if no, inserts it. Custom items remain untouched.
+            clothing_col.update_one(
+                {'id': product['id']},
+                {'$set': doc},
+                upsert=True
+            )
+            self.stdout.write(f"  ✅ Synced: {product['id']} - {product['name']}")
 
         self.stdout.write(
-            self.style.SUCCESS(f'\n✅ Synced {len(products)} products to MongoDB Atlas')
+            self.style.SUCCESS(f'\n🚀 Safely synced {len(products)} standard products to MongoDB Atlas!')
         )
