@@ -7,21 +7,22 @@ import axios from 'axios';
 function Wardrobe() {
   const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
+  
+  // ── LIVE BACKEND URL DEFINITION ─────────────────────────────
+  const BACKEND_URL = 'https://tryon-backend.onrender.com'; 
 
   useEffect(() => {
     const fetchCustomProducts = async () => {
       try {
-        // 1. Get the JWT authentication token from storage
         const token = localStorage.getItem('access_token'); 
 
-        // 2. Fetch the custom uploaded items from your Django database
-        const response = await axios.get('http://localhost:8000/api/products/', {
+        // Updated: Points to live deployed backend url
+        const response = await axios.get(`${BACKEND_URL}/api/products/`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        // 3. Merge your local static JSON catalog with your active database records
         const customItems = response.data.map(item => ({
           ...item,
           image: item.image_url || item.image 
@@ -49,7 +50,8 @@ function Wardrobe() {
     try {
       const token = localStorage.getItem('access_token');
       
-      await axios.delete(`http://localhost:8000/api/products/?id=${productId}`, {
+      // Updated: Points to live deployed backend url
+      await axios.delete(`${BACKEND_URL}/api/products/?id=${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
