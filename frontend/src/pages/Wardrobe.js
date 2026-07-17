@@ -15,8 +15,7 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
-        // FIX: Route updated to /api/products/ to match Django's URL routing prefix
-        const response = await axios.get(`${BACKEND_URL}/api/products/`, {
+        const response = await axios.get(`${BACKEND_URL}/products/`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -49,9 +48,8 @@ function Wardrobe() {
 
     try {
       const token = localStorage.getItem('access_token');
-      
-      // FIX: URL path targeted to /api/products/ matching the updated API configuration
-      await axios.delete(`${BACKEND_URL}/api/products/?id=${productId}`, {
+
+      await axios.delete(`${BACKEND_URL}/products/?id=${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
