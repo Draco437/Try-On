@@ -38,7 +38,8 @@ function Upload() {
     }));
   }
 
-  const allSelected = Object.values(files).every(f => f !== null);
+  // ── Change: Only front image is strictly compulsory to proceed ──
+  const allSelected = files.front !== null;
 
   const handleUpload = async () => {
     if (!allSelected) return;
@@ -49,24 +50,25 @@ function Upload() {
     try {
       // ── Build FormData ──
       const formData = new FormData();
+      
+      // Front is guaranteed to be there
       formData.append('front', files.front);
-      formData.append('back',  files.back);
-      formData.append('side',  files.side);
-      // ↑ FormData is how you send files via HTTP
-      // regular JSON can't carry binary file data
-      // Django reads these with request.FILES['front'] etc
+      
+      // ── Change: Only append back and side views if they were chosen ──
+      if (files.back) {
+        formData.append('back', files.back);
+      }
+      if (files.side) {
+        formData.append('side', files.side);
+      }
 
       // ── Send to Django ──
       const res = await API.post('body/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        // ↑ Must tell axios this is a file upload
-        // not regular JSON
       });
 
       // ── Save body_upload_id ──
       localStorage.setItem('body_upload_id', res.data.id);
-      // ↑ We need this ID later when starting the try-on job
-      // TryOnStartView needs: body_upload_id + clothing_item_id
 
       navigate('/quiz');
 
@@ -82,19 +84,19 @@ function Upload() {
   const VIEWS = [
     {
       key:   'front',
-      label: 'Front View',
+      label: 'Front View (Required)',
       icon:  '🧍',
       hint:  'Stand straight, face the camera',
     },
     {
       key:   'back',
-      label: 'Back View',
+      label: 'Back View (Optional)',
       icon:  '🧍‍♂️',
       hint:  'Turn around, stand straight',
     },
     {
       key:   'side',
-      label: 'Side View',
+      label: 'Side View (Optional)',
       icon:  '🚶',
       hint:  'Turn side ways, arms slightly out',
     },
@@ -117,8 +119,8 @@ function Upload() {
           <div className="upload-step-badge">Step 1 of 5</div>
           <h1 className="upload-title">Upload Your Photos</h1>
           <p className="upload-subtitle">
-            Upload full-body photos from all 3 angles for
-            accurate body mapping. Good lighting recommended.
+            Upload your front full-body photo. Side and back views are completely 
+            optional but recommended for complete 360° mapping.
           </p>
         </div>
 
@@ -135,7 +137,7 @@ function Upload() {
           <div className="upload-error">⚠️ {error}</div>
         )}
 
-        {/* ── 4 Upload zones grid ── */}
+        {/* ── 3 Upload zones grid ── */}
         <div className="upload-grid">
           {VIEWS.map((view) => (
             <div
@@ -144,8 +146,6 @@ function Upload() {
               onClick={() =>
                 document.getElementById(`input-${view.key}`).click()
               }
-              // ↑ Clicking the whole zone triggers
-              // the hidden file input
             >
               {/* Hidden file input */}
               <input
@@ -160,7 +160,6 @@ function Upload() {
 
               {/* Preview or placeholder */}
               {previews[view.key] ? (
-                // ── Image selected — show preview ──
                 <div className="upload-preview">
                   <img
                     src={previews[view.key]}
@@ -173,7 +172,6 @@ function Upload() {
                   </div>
                 </div>
               ) : (
-                // ── No image — show placeholder ──
                 <div className="upload-placeholder">
                   <div className="upload-zone-icon">{view.icon}</div>
                   <div className="upload-zone-label">{view.label}</div>
@@ -189,14 +187,15 @@ function Upload() {
         {/* ── Progress indicator ── */}
         <div className="upload-progress">
           <div className="upload-progress-text">
-            {Object.values(files).filter(f => f !== null).length} of 3 photos selected
+            {files.front ? '✅ Front view ready' : '❌ Front view missing'} 
+            {files.back && ' | ✓ Back view attached'} 
+            {files.side && ' | ✓ Side view attached'}
           </div>
-          {/* ↑ counts how many files are not null */}
           <div className="upload-progress-bar">
             <div
               className="upload-progress-fill"
               style={{
-                width: `${(Object.values(files).filter(f => f !== null).length / 3) * 100}%`
+                width: files.front ? `${(Object.values(files).filter(f => f !== null).length / 3) * 100}%` : '0%'
               }}
             />
           </div>
@@ -207,7 +206,6 @@ function Upload() {
           className="upload-btn"
           onClick={handleUpload}
           disabled={!allSelected || loading}
-          // ↑ disabled if not all 4 selected OR if loading
         >
           {loading ? (
             <span className="upload-btn-loading">
@@ -215,14 +213,9 @@ function Upload() {
             </span>
           ) : (
             allSelected
-              ? 'Continue to Quiz →'
-              : 'Select all 3 photos to continue'
+              ? 'Share your Preferences →'
+              : 'Upload a Front Photo to continue'
           )}
-          {/* ↑ Button text changes based on state:
-              not all selected → tells user what to do
-              all selected     → shows next step
-              loading          → shows spinner
-          */}
         </button>
 
       </div>

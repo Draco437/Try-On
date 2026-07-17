@@ -124,41 +124,51 @@ class BodyUploadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        required = ['front', 'back', 'side']
-        for view in required:
-            if view not in request.FILES:
-                return Response({'error': f'Missing image: {view}'}, status=400)
+        # ── Change: Only 'front' is strictly mandatory now ──
+        if 'front' not in request.FILES:
+            return Response({'error': 'Missing image: front'}, status=400)
 
         try:
             bucket = os.getenv('AWS_STORAGE_BUCKET')
             access_key = os.getenv('AWS_ACCESS_KEY_ID')
             
+            # Extract fields safely using .get() to prevent KeyErrors
+            front_file = request.FILES.get('front')
+            back_file = request.FILES.get('back')   # returns None if empty
+            side_file = request.FILES.get('side')   # returns None if empty
+
             if not bucket or not access_key:
                 fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'uploads'), base_url='/media/uploads/')
-                front_file = request.FILES['front']
-                back_file = request.FILES['back']
-                side_file = request.FILES['side']
-                
-                front_name = fs.save(front_file.name, front_file)
-                back_name = fs.save(back_file.name, back_file)
-                side_name = fs.save(side_file.name, side_file)
-                
                 BACKEND_URL = os.getenv('BACKEND_URL', 'http://127.0.0.1:8000')
+                
+                # 1. Front is mandatory
+                front_name = fs.save(front_file.name, front_file)
                 front_url = f"{BACKEND_URL}{fs.url(front_name)}"
-                back_url = f"{BACKEND_URL}{fs.url(back_name)}"
-                side_url = f"{BACKEND_URL}{fs.url(side_name)}"
+                
+                # 2. Process optional views cleanly
+                back_url = None
+                if back_file:
+                    back_name = fs.save(back_file.name, back_file)
+                    back_url = f"{BACKEND_URL}{fs.url(back_name)}"
+                    
+                side_url = None
+                if side_file:
+                    side_name = fs.save(side_file.name, side_file)
+                    side_url = f"{BACKEND_URL}{fs.url(side_name)}"
             else:
-                front_url = upload_to_s3(request.FILES['front'], 'body')
-                back_url  = upload_to_s3(request.FILES['back'],  'body')
-                side_url  = upload_to_s3(request.FILES['side'],  'body')
+                # AWS S3 Flow
+                front_url = upload_to_s3(front_file, 'body')
+                back_url  = upload_to_s3(back_file, 'body') if back_file else None
+                side_url  = upload_to_s3(side_file, 'body') if side_file else None
+                
         except Exception as e:
             return Response({'error': f'File storage processing failed: {str(e)}'}, status=500)
 
         doc = {
             'user_id':     request.user.id,
             'front_url':   front_url,
-            'back_url':    back_url,
-            'side_url':    side_url,
+            'back_url':    back_url,  # Saves cleanly as null in MongoDB
+            'side_url':    side_url,  # Saves cleanly as null in MongoDB
             'uploaded_at': datetime.now(timezone.utc),
         }
         result = body_uploads_col.insert_one(doc)

@@ -257,25 +257,21 @@ def run_tryon_pipeline(self, job_id):
         print(f"✅ Body upload: {body.get('_id')}")
 
         # ── Get clothing item ────────────────────────────
-        # FIX: search by both 'id' (p001) AND '_id' (ObjectId)
         clothing_item_id = str(job['clothing_item_id'])
         print(f"🔍 Looking for clothing: {clothing_item_id}")
 
         clothing = clothing_col.find_one({'id': clothing_item_id})
 
         if not clothing:
-            # Try as ObjectId
             try:
                 clothing = clothing_col.find_one({'_id': ObjectId(clothing_item_id)})
             except Exception:
                 pass
 
         if not clothing:
-            # Try by MongoDB _id as string (when serializer returns str(_id))
             clothing = clothing_col.find_one({'_id': clothing_item_id})
 
         if not clothing:
-            # Last resort — list all and show what we have
             sample = list(clothing_col.find().limit(3))
             sample_ids = [(str(s.get('_id')), s.get('id'), s.get('name')) for s in sample]
             print(f"❌ Clothing not found. Sample items: {sample_ids}")
@@ -300,18 +296,30 @@ def run_tryon_pipeline(self, job_id):
 
         # ── Get person photo URLs ────────────────────────
         front_url = body.get('front_url')
-        back_url  = body.get('back_url')
-        side_url  = body.get('side_url')
+        back_url  = body.get('back_url')   # Might be None/Null now
+        side_url  = body.get('side_url')   # Might be None/Null now
 
         print(f"\n📸 front: {bool(front_url)}")
         print(f"📸 back:  {bool(back_url)}")
         print(f"📸 side:  {bool(side_url)}")
 
-        # ── Run Leffa explicitly on each view ────────────
-        # NOTE: Explicit calls — NOT a loop — guarantees order
+        # ── Run Leffa conditionally based on presence ────
+        # Front view is always required
         front_result, front_ai = process_view(front_url, garment_path, garment_type, 'front')
-        back_result, back_ai  = process_view(back_url,  garment_path, garment_type, 'back')
-        side_result, side_ai  = process_view(side_url,  garment_path, garment_type, 'side')
+        
+        # Back view execution check
+        if back_url:
+            back_result, back_ai = process_view(back_url, garment_path, garment_type, 'back')
+        else:
+            print("ℹ️ Skipping BACK view processing — No image provided.")
+            back_result, back_ai = None, False
+
+        # Side view execution check
+        if side_url:
+            side_result, side_ai = process_view(side_url, garment_path, garment_type, 'side')
+        else:
+            print("ℹ️ Skipping SIDE view processing — No image provided.")
+            side_result, side_ai = None, False
 
         ai_applied_any = front_ai or back_ai or side_ai
 
