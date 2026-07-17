@@ -171,6 +171,8 @@ CELERY_ACCEPT_CONTENT  = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 # ↑ Tasks are passed as JSON between Django and Celery worker
 
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1
+
 # ── AWS S3 ────────────────────────────────────────────────────
 AWS_ACCESS_KEY_ID     = os.getenv('AWS_ACCESS_KEY_ID',     '')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '')
