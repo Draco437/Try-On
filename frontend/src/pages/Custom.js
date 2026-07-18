@@ -45,21 +45,15 @@ function CustomProductForm() {
 
     const token = localStorage.getItem('access_token'); 
 
-    // ── THE ULTIMATE MATCH FOR YOUR VIEWS.PY EXTRACTION ──
+    // Match backend request.data keys exactly
     const payload = {
       name: formData.name,
       price: Number(formData.price) || 0,
       gender: formData.gender,
       size: formData.size,
       material: formData.material,
-      
-      // 1. views.py does: request.data.get('clothing', '')
       clothing: formData.clothing, 
-      
-      // 2. views.py does: request.data.get('image', '')
       image: formData.image,   
-      
-      // 3. views.py does: request.data.get('occasion', '') and maps arrays/strings smoothly
       occasion: formData.occasion 
     };
 
@@ -78,11 +72,23 @@ function CustomProductForm() {
         navigate('/wardrobe'); 
       }
     } catch (error) {
-      console.error("Error uploading custom product to MongoDB:", error);
-      if (error.response && error.response.data) {
-        console.error("Backend validation error details:", error.response.data);
+      console.error("Error uploading custom product:", error);
+      
+      // Extract the exact reason from the server response
+      let errorMsg = "Failed to add product to database.";
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          errorMsg = `Auth Error (${error.response.status}): Your login session might have expired. Please log out and log back in.`;
+        } else if (error.response.data && error.response.data.error) {
+          errorMsg = `Backend Error: ${error.response.data.error}`;
+        } else {
+          errorMsg = `Server Error (${error.response.status}): ${JSON.stringify(error.response.data)}`;
+        }
+      } else {
+        errorMsg = `Network Error: ${error.message}`;
       }
-      alert("Failed to add product to database.");
+      
+      alert(errorMsg);
     }
   };
 
