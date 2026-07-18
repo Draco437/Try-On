@@ -45,7 +45,7 @@ function CustomProductForm() {
 
     const token = localStorage.getItem('access_token'); 
 
-    // ── FIXED PAYLOAD MAPPING FOR BACKEND VALIDATION ──
+    // ── MATCHING YOUR VIEWS.PY EXTRACTION RULES PERFECTLY ──
     const payload = {
       name: formData.name,
       price: Number(formData.price) || 0,
@@ -53,13 +53,13 @@ function CustomProductForm() {
       size: formData.size,
       material: formData.material,
       
-      // 1. Map 'clothing' to 'category' for backend validation
-      category: formData.clothing, 
+      // The backend uses request.data.get('clothing')
+      clothing: formData.clothing, 
       
-      // 2. Map 'image' to 'image_url' for backend validation
-      image_url: formData.image,   
+      // The backend uses request.data.get('image')
+      image: formData.image,   
       
-      // 3. Send occasion array or string based on your backend config
+      // The backend handles strings or arrays for occasion smoothly
       occasion: formData.occasion.join(', ') 
     };
 
@@ -73,14 +73,12 @@ function CustomProductForm() {
         }
       });
       
-      // Fixed condition to accept both 200 and 201 success codes cleanly
       if (response.status === 201 || response.status === 200) {
         alert("Product added successfully to database!");
         navigate('/wardrobe'); 
       }
     } catch (error) {
       console.error("Error uploading custom product to MongoDB:", error);
-      // Log the exact validation text coming back from Django so you can see it in console
       if (error.response && error.response.data) {
         console.error("Backend validation details:", error.response.data);
       }
