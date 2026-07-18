@@ -45,16 +45,22 @@ function CustomProductForm() {
 
     const token = localStorage.getItem('access_token'); 
 
-    // ── EXACT DIRECT IMPLEMENTATION USED PREVIOUSLY ──
+    // ── THE ULTIMATE MATCH FOR YOUR VIEWS.PY EXTRACTION ──
     const payload = {
       name: formData.name,
-      image: formData.image,
-      price: formData.price,
+      price: Number(formData.price) || 0,
       gender: formData.gender,
-      clothing: formData.clothing,
       size: formData.size,
       material: formData.material,
-      occasion: formData.occasion
+      
+      // 1. views.py does: request.data.get('clothing', '')
+      clothing: formData.clothing, 
+      
+      // 2. views.py does: request.data.get('image', '')
+      image: formData.image,   
+      
+      // 3. views.py does: request.data.get('occasion', '') and maps arrays/strings smoothly
+      occasion: formData.occasion 
     };
 
     const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com';
@@ -74,7 +80,7 @@ function CustomProductForm() {
     } catch (error) {
       console.error("Error uploading custom product to MongoDB:", error);
       if (error.response && error.response.data) {
-        console.error("Backend validation details:", error.response.data);
+        console.error("Backend validation error details:", error.response.data);
       }
       alert("Failed to add product to database.");
     }
