@@ -14,18 +14,17 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
-        // Target the products API endpoint which returns the full list
+        // CRITICAL FIX: Explicitly call /products/ to fetch the 40 items + custom ones
         const response = await axios.get(`${BACKEND_URL}/products/`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        // Safe normalization fallback so that missing image links or properties don't crash the grid
         const databaseItems = Array.isArray(response.data) ? response.data.map(item => ({
           ...item,
           image: item.image_url || item.image || 'https://via.placeholder.com/400x500?text=No+Image',
-          displayCategory: item.category || item.clothing || 'Uncategorized'
+          displayCategory: item.category || 'Uncategorized'
         })) : [];
 
         setAllProducts(databaseItems);
@@ -49,6 +48,7 @@ function Wardrobe() {
     try {
       const token = localStorage.getItem('access_token');
       
+      // Deletes items using the query parameter structure expected by views.py
       await axios.delete(`${BACKEND_URL}/products/?id=${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`

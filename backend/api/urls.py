@@ -32,7 +32,7 @@ urlpatterns = [
 
     path('tryon/status/<str:job_id>/', TryOnStatusView.as_view()),
 
-    path('wardrobe/',      WardrobeView.as_view()),
+    path('wardrobe/', WardrobeView.as_view(), name='wardrobe-jobs'),
 
-    path('products/', ProductCreateListView.as_view(), name='product-create-list'),
+    path('products/', ProductCreateListView.as_view(), name='product-list-create'),
 ]

@@ -413,22 +413,34 @@ class ProductCreateListView(APIView):
 
     def get(self, request):
         try:
-            # 1. Fetch items that are either global (no created_by) OR created by this specific user
-            query = {
-                '$or': [
-                    {'created_by': {'$exists': False}},
-                    {'created_by': None},
-                    {'created_by': request.user.id}
-                ]
-            }
-            items = list(clothing_col.find(query))
+            # Fetch EVERYTHING from the collection to catch all 40+ items
+            items = list(clothing_col.find({}))
             
-            # 2. Safely serialize the list to return to the frontend
-            serialized_items = serialize_list(items, serialize_clothing_item)
+            serialized_items = []
+            for item in items:
+                try:
+                    # Defensive parsing loop so data schema variances don't break the load
+                    serialized_items.append({
+                        'id': str(item.get('id', item.get('_id'))),
+                        '_id': str(item.get('_id')),
+                        'name': item.get('name', 'Unnamed Item'),
+                        'category': item.get('category', item.get('clothing', 'shirt')),
+                        'gender': item.get('gender', 'M'),
+                        'size': item.get('size', []),
+                        'material': item.get('material', ''),
+                        'occasion': item.get('occasion', []),
+                        'image_url': item.get('image_url', item.get('image', '')),
+                        'price': float(item.get('price', 0.0)),
+                        'created_by': item.get('created_by', None)
+                    })
+                except Exception as parse_err:
+                    print(f"Skipping single item serialization issue: {parse_err}")
+                    continue
+
             return Response(serialized_items, status=200)
             
         except Exception as e:
-            return Response({'error': f'Database lookup failed: {str(e)}'}, status=500)
+            return Response({'error': f'Database fetching failed: {str(e)}'}, status=500)
 
     def post(self, request):
         name = request.data.get('name', '').strip()
