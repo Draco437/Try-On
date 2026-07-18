@@ -14,8 +14,7 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
-        // CRITICAL FIX: Explicitly call /products/ to fetch the 40 items + custom ones
-        const response = await axios.get(`${BACKEND_URL}/products/`, {
+        const response = await axios.get(`${BACKEND_URL}/api/products/`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
