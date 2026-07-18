@@ -14,17 +14,19 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
-        // Uses standard axios directly with the direct root path
+        // Target the products API endpoint which returns the full list
         const response = await axios.get(`${BACKEND_URL}/products/`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        const databaseItems = response.data.map(item => ({
+        // Safe normalization fallback so that missing image links or properties don't crash the grid
+        const databaseItems = Array.isArray(response.data) ? response.data.map(item => ({
           ...item,
-          image: item.image_url || item.image 
-        }));
+          image: item.image_url || item.image || 'https://via.placeholder.com/400x500?text=No+Image',
+          displayCategory: item.category || item.clothing || 'Uncategorized'
+        })) : [];
 
         setAllProducts(databaseItems);
       } catch (error) {
@@ -36,8 +38,8 @@ function Wardrobe() {
   }, []);
 
   const formatList = (val) => {
-    if (!val) return '';
-    if (Array.isArray(val)) return val.join(', ');
+    if (!val) return 'None';
+    if (Array.isArray(val)) return val.length > 0 ? val.join(', ') : 'None';
     return val.toString();
   };
 
@@ -69,10 +71,14 @@ function Wardrobe() {
       </div>
       
       <div className="products-grid">
-        {allProducts.map((product, index) => (
-          <div key={product.id || product._id || `${product.name}-${index}`} className="product-card custom-product-card">
-
-            {product && (
+        {allProducts.length === 0 ? (
+          <div className="no-products-msg" style={{ gridColumn: '1/-1', textAlign: 'center', color: '#888', marginTop: '20px' }}>
+            No products found in your wardrobe closet. Click above to add one!
+          </div>
+        ) : (
+          allProducts.map((product, index) => (
+            <div key={product.id || product._id || `${product.name}-${index}`} className="product-card custom-product-card">
+              
               <div className="delete-btn-container">
                 <button 
                   onClick={() => handleDelete(product.id || product._id)}
@@ -82,41 +88,41 @@ function Wardrobe() {
                   🗑️
                 </button>
               </div>
-            )}
 
-            <div className="product-image-wrapper">
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="product-image" 
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/400x500?text=No+Image'; }}
-              />
+              <div className="product-image-wrapper">
+                <img 
+                  src={product.image} 
+                  alt={product.name || "Product"} 
+                  className="product-image" 
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/400x500?text=No+Image'; }}
+                />
+              </div>
+
+              <div className="product-info">
+                <div className="product-header">
+                  <h3 className="product-name">{product.name || "Unnamed Item"}</h3>
+                  <span className="product-price">₹{product.price ?? 0}</span>
+                </div>
+
+                <div className="product-details-tags">
+                  <span className="detail-tag tag-gender">{product.gender || "U"}</span>
+                  <span className="detail-tag tag-type">{product.displayCategory}</span>
+                  <span className="detail-tag tag-size">Size: {formatList(product.size)}</span>
+                </div>
+
+                <div className="product-footer-details">
+                  <p>
+                    <strong>Material:</strong> <span>{formatList(product.material)}</span>
+                  </p>
+                  <p>
+                    <strong>Occasion:</strong> <span>{formatList(product.occasion)}</span>
+                  </p>
+                </div>
+
+              </div>
             </div>
-
-            <div className="product-info">
-              <div className="product-header">
-                <h3 className="product-name">{product.name}</h3>
-                <span className="product-price">₹{product.price}</span>
-              </div>
-
-              <div className="product-details-tags">
-                <span className="detail-tag tag-gender">{product.gender}</span>
-                <span className="detail-tag tag-type">{product.category || product.clothing}</span>
-                <span className="detail-tag tag-size">Size: {formatList(product.size)}</span>
-              </div>
-
-              <div className="product-footer-details">
-                <p>
-                  <strong>Material:</strong> <span>{formatList(product.material)}</span>
-                </p>
-                <p>
-                  <strong>Occasion:</strong> <span>{formatList(product.occasion)}</span>
-                </p>
-              </div>
-
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
