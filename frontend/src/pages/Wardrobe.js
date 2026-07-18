@@ -42,26 +42,35 @@ function Wardrobe() {
     return val.toString();
   };
 
-  const handleDelete = async (productId) => {
-    if (!window.confirm("Are you sure you want to remove this item?")) return;
+  const handleDelete = async (product) => {
+  // 1. Extract the actual database key (_id is standard for MongoDB Atlas imports)
+  const targetId = product._id || product.id;
 
-    try {
-      const token = localStorage.getItem('access_token');
-      
-      // FIX: Also added the /api/ prefix here for the delete endpoint
-      await axios.delete(`${BACKEND_URL}/api/products/?id=${productId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+  if (!targetId) {
+    alert("Error: Product ID not found.");
+    return;
+  }
 
-      setAllProducts(prev => prev.filter(p => p.id !== productId && p._id !== productId));
-      alert("Product removed successfully!");
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      alert("Failed to delete product.");
-    }
-  };
+  if (!window.confirm("Are you sure you want to remove this item?")) return;
+
+  try {
+    const token = localStorage.getItem('access_token');
+    
+    // 2. Pass the correct database key to the query string
+    await axios.delete(`${BACKEND_URL}/api/products/?id=${targetId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    // 3. Update local state to remove the item visually immediately
+    setAllProducts(prev => prev.filter(p => p._id !== targetId && p.id !== targetId));
+    alert("Product removed successfully!");
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    alert("Failed to delete product.");
+  }
+};
 
   return (
     <div className="wardrobe-container">
@@ -80,11 +89,7 @@ function Wardrobe() {
             <div key={product.id || product._id || `${product.name}-${index}`} className="product-card custom-product-card">
               
               <div className="delete-btn-container">
-                <button 
-                  onClick={() => handleDelete(product.id || product._id)}
-                  className="delete-product-btn"
-                  title="Remove product"
-                >
+                <button onClick={() => handleDelete(product)} className="delete-product-btn" title="Remove product">
                   🗑️
                 </button>
               </div>
