@@ -43,36 +43,49 @@ function CustomProductForm() {
       return;
     }
 
-    // 1. Grab the stored JWT access token
     const token = localStorage.getItem('access_token'); 
 
-    // Prepare the exact format the backend expects
+    // ── FIXED PAYLOAD MAPPING FOR BACKEND VALIDATION ──
     const payload = {
-      ...formData,
+      name: formData.name,
       price: Number(formData.price) || 0,
-      occasion: formData.occasion.join(', ') // "casual, outdoor"
+      gender: formData.gender,
+      size: formData.size,
+      material: formData.material,
+      
+      // 1. Map 'clothing' to 'category' for backend validation
+      category: formData.clothing, 
+      
+      // 2. Map 'image' to 'image_url' for backend validation
+      image_url: formData.image,   
+      
+      // 3. Send occasion array or string based on your backend config
+      occasion: formData.occasion.join(', ') 
     };
 
-    // Change this line from localhost to your deployed render URL
-const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com';
+    const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com';
 
-try {
-  // REMOVED /api/ -> Points directly to /products/ to match urls.py
-  const response = await axios.post(`${BACKEND_URL}/products/`, payload, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+    try {
+      const response = await axios.post(`${BACKEND_URL}/products/`, payload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Fixed condition to accept both 200 and 201 success codes cleanly
+      if (response.status === 201 || response.status === 200) {
+        alert("Product added successfully to database!");
+        navigate('/wardrobe'); 
+      }
+    } catch (error) {
+      console.error("Error uploading custom product to MongoDB:", error);
+      // Log the exact validation text coming back from Django so you can see it in console
+      if (error.response && error.response.data) {
+        console.error("Backend validation details:", error.response.data);
+      }
+      alert("Failed to add product to database.");
     }
-  });
-  
-  if (response.status === 201) {
-    alert("Product added successfully to database!");
-    navigate('/wardrobe'); 
-  }
-} catch (error) {
-  console.error("Error uploading custom product to MongoDB:", error);
-  alert("Failed to add product to database.");
-}
   };
 
   return (
