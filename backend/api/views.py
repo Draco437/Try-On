@@ -412,8 +412,23 @@ class ProductCreateListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        items = list(clothing_col.find({}))
-        return Response(serialize_list(items, serialize_clothing_item), status=200)
+        try:
+            # 1. Fetch items that are either global (no created_by) OR created by this specific user
+            query = {
+                '$or': [
+                    {'created_by': {'$exists': False}},
+                    {'created_by': None},
+                    {'created_by': request.user.id}
+                ]
+            }
+            items = list(clothing_col.find(query))
+            
+            # 2. Safely serialize the list to return to the frontend
+            serialized_items = serialize_list(items, serialize_clothing_item)
+            return Response(serialized_items, status=200)
+            
+        except Exception as e:
+            return Response({'error': f'Database lookup failed: {str(e)}'}, status=500)
 
     def post(self, request):
         name = request.data.get('name', '').strip()
