@@ -14,6 +14,7 @@ function Wardrobe() {
       try {
         const token = localStorage.getItem('access_token'); 
 
+        // FIX: Route updated with the mandatory /api/ prefix to prevent 404
         const response = await axios.get(`${BACKEND_URL}/api/products/`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -47,8 +48,8 @@ function Wardrobe() {
     try {
       const token = localStorage.getItem('access_token');
       
-      // Deletes items using the query parameter structure expected by views.py
-      await axios.delete(`${BACKEND_URL}/products/?id=${productId}`, {
+      // FIX: Also added the /api/ prefix here for the delete endpoint
+      await axios.delete(`${BACKEND_URL}/api/products/?id=${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
