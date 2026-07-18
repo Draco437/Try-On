@@ -22,18 +22,18 @@ function CustomProductForm() {
   };
 
   const handleCheckboxChange = (e) => {
-  const { value, checked } = e.target;
-  setFormData((prev) => {
-    const currentOccasions = [...prev.occasion];
-    if (checked) {
-      currentOccasions.push(value); // Add item if checked
-    } else {
-      const index = currentOccasions.indexOf(value);
-      if (index > -1) currentOccasions.splice(index, 1); // Remove if unchecked
-    }
-    return { ...prev, occasion: currentOccasions };
-  });
-};
+    const { value, checked } = e.target;
+    setFormData((prev) => {
+      const currentOccasions = [...prev.occasion];
+      if (checked) {
+        currentOccasions.push(value);
+      } else {
+        const index = currentOccasions.indexOf(value);
+        if (index > -1) currentOccasions.splice(index, 1);
+      }
+      return { ...prev, occasion: currentOccasions };
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,22 +45,16 @@ function CustomProductForm() {
 
     const token = localStorage.getItem('access_token'); 
 
-    // ── MATCHING YOUR VIEWS.PY EXTRACTION RULES PERFECTLY ──
+    // ── EXACT DIRECT IMPLEMENTATION USED PREVIOUSLY ──
     const payload = {
       name: formData.name,
-      price: Number(formData.price) || 0,
+      image: formData.image,
+      price: formData.price,
       gender: formData.gender,
+      clothing: formData.clothing,
       size: formData.size,
       material: formData.material,
-      
-      // The backend uses request.data.get('clothing')
-      clothing: formData.clothing, 
-      
-      // The backend uses request.data.get('image')
-      image: formData.image,   
-      
-      // The backend handles strings or arrays for occasion smoothly
-      occasion: formData.occasion.join(', ') 
+      occasion: formData.occasion
     };
 
     const BACKEND_URL = 'https://tryon-backend-azbd.onrender.com';
@@ -98,7 +92,7 @@ function CustomProductForm() {
 
         <div className="form-group">
           <label>Image URL</label>
-          <input required type="text" name="image" value={formData.image} onChange={handleChange} placeholder="https://example.com/image.jpg or placeholder data base64" />
+          <input required type="text" name="image" value={formData.image} onChange={handleChange} placeholder="https://example.com/image.jpg" />
         </div>
 
         <div className="form-group">
@@ -152,19 +146,19 @@ function CustomProductForm() {
 
         <div className="form-group">
           <label>Occasions (Select all that apply)</label>
-  <div className="checkbox-group">
-    {['casual', 'formal', 'sport', 'party', 'outdoor'].map((occ) => (
-      <label key={occ} className="checkbox-label">
-        <input
-          type="checkbox"
-          value={occ}
-          checked={formData.occasion.includes(occ)}
-          onChange={handleCheckboxChange}
-        />
-        <span>{occ}</span>
-      </label>
-    ))}
-  </div>
+          <div className="checkbox-group">
+            {['casual', 'formal', 'sport', 'party', 'outdoor'].map((occ) => (
+              <label key={occ} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  value={occ}
+                  checked={formData.occasion.includes(occ)}
+                  onChange={handleCheckboxChange}
+                />
+                <span>{occ}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <button type="submit" className="submit-form-btn">ADD PRODUCT</button>
