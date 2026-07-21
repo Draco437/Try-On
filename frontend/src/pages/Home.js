@@ -7,8 +7,8 @@ const steps = [
   {
     num:   '01',
     icon:  '📸',
-    title: 'Upload 4 Photos',
-    desc:  'Upload full-body photos from front, back, left and right angles for accurate body mapping.',
+    title: 'Upload 3 Photos',
+    desc:  'Upload full-body photos from front, back and side angles for accurate body mapping.',
   },
   {
     num:   '02',
@@ -32,7 +32,7 @@ const steps = [
     num:   '05',
     icon:  '🔁',
     title: 'View in 360°',
-    desc:  'See the result from all 4 angles with AI style score and personalized feedback.',
+    desc:  'See the result from all 3 angles with AI style score and personalized feedback.',
   },
 ];
 
