@@ -9,8 +9,6 @@ import time
 
 from .db import tryon_jobs_col, body_uploads_col, clothing_col
 
-
-# ── HELPER: Download image to temp file ──────────────────────
 def download_to_temp(url):
     import tempfile
     if not url:
@@ -28,8 +26,6 @@ def download_to_temp(url):
         print(f"❌ Download failed: {e}")
         return None
 
-
-# ── HELPER: Save result to media folder ──────────────────────
 def save_result_to_media(source_path, view_name):
     if not source_path or not os.path.exists(source_path):
         print(f"❌ Source file not found: {source_path}")
@@ -49,8 +45,6 @@ def save_result_to_media(source_path, view_name):
         print(f"❌ Save failed: {e}")
         return None
 
-
-# ── HELPER: Upload to S3 ──────────────────────────────────────
 def upload_to_s3(source_path, view_name):
     bucket     = os.getenv('AWS_STORAGE_BUCKET')
     access_key = os.getenv('AWS_ACCESS_KEY_ID')
@@ -74,8 +68,6 @@ def upload_to_s3(source_path, view_name):
         print(f"❌ S3 upload failed: {e}")
         return None
 
-
-# ── HELPER: Crop white padding ────────────────────────────────
 def crop_white_padding(source_path):
     try:
         from PIL import Image
@@ -108,7 +100,6 @@ def crop_white_padding(source_path):
         return source_path
 
 
-# ── CORE: Run Leffa with retry ────────────────────────────────
 def run_leffa(person_path, garment_path, garment_type='upper_body', max_retries=3):
     """
     Runs Leffa with automatic retry on failure.
@@ -130,13 +121,13 @@ def run_leffa(person_path, garment_path, garment_type='upper_body', max_retries=
             result = client.predict(
                 handle_file(person_path),
                 handle_file(garment_path),
-                False,                # src_image_bound
-                num_inference_steps,  # 30 -> changed to 50
-                guidance_scale,       # 2.5 -> changed to 3.0
-                42,                   # seed
-                "viton_hd",           # target_model
+                False,              
+                num_inference_steps,
+                guidance_scale, 
+                42,                  
+                "viton_hd",          
                 garment_type,
-                False,                # is_real_time
+                False,                
                 api_name="/leffa_predict_vt"
             )
 
@@ -162,8 +153,6 @@ def run_leffa(person_path, garment_path, garment_type='upper_body', max_retries=
     print(f"❌ All {max_retries} attempts failed")
     return None
 
-
-# ── HELPER: Garment type mapping ─────────────────────────────
 def get_garment_type(category):
     upper = ['tshirt', 'shirt', 'jacket']
     lower = ['jeans', 'pants']
@@ -173,8 +162,6 @@ def get_garment_type(category):
     elif category in dress: return 'dresses'
     else:                   return 'upper_body'
 
-
-# ── HELPER: Process one view ──────────────────────────────────
 def process_view(person_url, garment_path, garment_type, view_name):
     """
     Returns (url, ai_applied) — ai_applied is False whenever we fell
@@ -215,22 +202,7 @@ def process_view(person_url, garment_path, garment_type, view_name):
         except: pass
 
 
-# ── STYLE ANALYSIS ────────────────────────────────────────────
-def analyze_style(category):
-    feedback_map = {
-        'tshirt': (8.2, "The t-shirt fits well at the shoulders and chest. The length is appropriate for your body type."),
-        'shirt':  (8.5, "The shirt drapes cleanly across the shoulders. The fit looks professional and sharp."),
-        'jeans':  (8.0, "The jeans sit well at the waist. The leg length looks proportionate to your height."),
-        'pants':  (7.9, "The pants fit well around the waist. Consider a belt for a more polished look."),
-        'dress':  (9.0, "The dress flows beautifully. The length and silhouette complement your body shape."),
-        'jacket': (8.7, "The jacket shoulders align perfectly. The overall fit looks sharp and well-structured."),
-    }
-    return feedback_map.get(category, (8.0, "The outfit fits well overall. Looks great on you!"))
-
-
-# ══════════════════════════════════════════════════════════════
 # MAIN CELERY TASK
-# ══════════════════════════════════════════════════════════════
 
 @shared_task(bind=True, max_retries=0)
 def run_tryon_pipeline(self, job_id):
@@ -250,13 +222,11 @@ def run_tryon_pipeline(self, job_id):
     )
 
     try:
-        # ── Get body upload ──────────────────────────────
         body = body_uploads_col.find_one({'_id': ObjectId(job['body_upload_id'])})
         if not body:
             raise Exception('Body upload not found')
         print(f"✅ Body upload: {body.get('_id')}")
 
-        # ── Get clothing item ────────────────────────────
         clothing_item_id = str(job['clothing_item_id'])
         print(f"🔍 Looking for clothing: {clothing_item_id}")
 
@@ -289,32 +259,26 @@ def run_tryon_pipeline(self, job_id):
         if not garment_url:
             raise Exception('No image URL on clothing item')
 
-        # ── Download garment once ────────────────────────
         garment_path = download_to_temp(garment_url)
         if not garment_path:
             raise Exception('Failed to download garment image')
 
-        # ── Get person photo URLs ────────────────────────
         front_url = body.get('front_url')
-        back_url  = body.get('back_url')   # Might be None/Null now
-        side_url  = body.get('side_url')   # Might be None/Null now
+        back_url  = body.get('back_url')   
+        side_url  = body.get('side_url')  
 
         print(f"\n📸 front: {bool(front_url)}")
         print(f"📸 back:  {bool(back_url)}")
         print(f"📸 side:  {bool(side_url)}")
 
-        # ── Run Leffa conditionally based on presence ────
-        # Front view is always required
         front_result, front_ai = process_view(front_url, garment_path, garment_type, 'front')
-        
-        # Back view execution check
+
         if back_url:
             back_result, back_ai = process_view(back_url, garment_path, garment_type, 'back')
         else:
             print("ℹ️ Skipping BACK view processing — No image provided.")
             back_result, back_ai = None, False
 
-        # Side view execution check
         if side_url:
             side_result, side_ai = process_view(side_url, garment_path, garment_type, 'side')
         else:
@@ -331,10 +295,6 @@ def run_tryon_pipeline(self, job_id):
         try: os.unlink(garment_path)
         except: pass
 
-        # ── Style analysis ───────────────────────────────
-        style_score, style_feedback = analyze_style(category)
-
-        # ── Save to MongoDB ──────────────────────────────
         tryon_jobs_col.update_one(
             {'_id': ObjectId(job_id)},
             {'$set': {
@@ -346,8 +306,6 @@ def run_tryon_pipeline(self, job_id):
                 'back_ai_applied': back_ai,
                 'side_ai_applied': side_ai,
                 'ai_applied':     ai_applied_any,
-                'style_score':    style_score,
-                'style_feedback': style_feedback,
                 'completed_at':   datetime.utcnow(),
             }}
         )
