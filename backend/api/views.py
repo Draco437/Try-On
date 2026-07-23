@@ -55,9 +55,7 @@ def upload_to_s3(file_obj, folder='uploads'):
     return f"https://{bucket}.s3.amazonaws.com/{key}"
 
 
-# ═══════════════════════════════════════════════════════════════
 # AUTH VIEWS
-# ═══════════════════════════════════════════════════════════════
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -115,10 +113,7 @@ class LogoutView(APIView):
             pass
         return Response({'message': 'Logged out successfully'})
 
-
-# ═══════════════════════════════════════════════════════════════
 # BODY UPLOAD VIEWS
-# ═══════════════════════════════════════════════════════════════
 
 class BodyUploadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -167,8 +162,8 @@ class BodyUploadView(APIView):
         doc = {
             'user_id':     request.user.id,
             'front_url':   front_url,
-            'back_url':    back_url,  # Saves cleanly as null in MongoDB
-            'side_url':    side_url,  # Saves cleanly as null in MongoDB
+            'back_url':    back_url,  
+            'side_url':    side_url,  
             'uploaded_at': datetime.now(timezone.utc),
         }
         result = body_uploads_col.insert_one(doc)
@@ -182,10 +177,7 @@ class BodyUploadView(APIView):
             return Response({'error': 'No upload found'}, status=404)
         return Response(serialize_body_upload(doc))
 
-
-# ═══════════════════════════════════════════════════════════════
 # PREFERENCE VIEWS (QUIZ PREFERENCES)
-# ═══════════════════════════════════════════════════════════════
 
 class PreferenceView(APIView):
     permission_classes = [IsAuthenticated]
@@ -201,7 +193,6 @@ class PreferenceView(APIView):
         if not raw_gender or not raw_clothing or not raw_size:
             return Response({'error': 'Gender, clothing and size are required'}, status=400)
 
-        # ── NORMALIZE BEFORE SAVING TO MONGO ──
         if str(raw_gender).strip() in ['Male', 'M', 'm']:
             gender = 'M'
         elif str(raw_gender).strip() in ['Female', 'F', 'f']:
@@ -220,12 +211,12 @@ class PreferenceView(APIView):
         # ── Save normalized preference ──
         doc = {
             'user_id':  request.user.id,
-            'gender':   gender,      # Always stored as "M" or "F"
-            'clothing': clothing,    # Always stored lowercase (e.g. "tshirt")
-            'size':     size,        # Always stored uppercase (e.g. "L")
-            'material': material,    # Always stored lowercase (e.g. "cotton")
+            'gender':   gender,   
+            'clothing': clothing,    
+            'size':     size,        
+            'material': material,    
             'color':    color,
-            'occasion': occasion,    # Always stored lowercase (e.g. "casual")
+            'occasion': occasion,    
         }
         result = preferences_col.insert_one(doc)
         doc['_id'] = result.inserted_id
@@ -238,10 +229,7 @@ class PreferenceView(APIView):
             return Response({'error': 'No preference found'}, status=404)
         return Response(serialize_preference(doc))
 
-
-# ═══════════════════════════════════════════════════════════════
 # CLOTHING / RECOMMENDATION VIEWS
-# ═══════════════════════════════════════════════════════════════
 
 class RecommendationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -403,17 +391,13 @@ class WardrobeView(APIView):
         }).sort('created_at', -1).limit(20))
         return Response(serialize_list(jobs, serialize_tryon_job))
 
-
-# ═══════════════════════════════════════════════════════════════
 # PRODUCT MANAGEMENT VIEWS
-# ═══════════════════════════════════════════════════════════════
 
 class ProductCreateListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            # Fetch EVERYTHING from the collection to catch all 40+ items
             items = list(clothing_col.find({}))
             
             serialized_items = []
